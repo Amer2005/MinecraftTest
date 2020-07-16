@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fe6f5f2f4b357f45b6d10b0b4833289, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DefaultTile: {fileID: 1857254729193536950, guid: 52a3351583a94f0479ff5f4e434a88e0,
+  DefaultChunk: {fileID: 5858966076221165606, guid: 48ac5dd215d17a646af20e408f883101,
     type: 3}
   Materials:
   - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}

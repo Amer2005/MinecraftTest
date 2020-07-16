@@ -9,16 +9,17 @@ using UnityEngine;
 public class GameView : MonoBehaviour
 {
     private GameController gameController;
-    private GameObject[,,] tileGameObjects;
+    private GameObject[,] gameChunks;
+    private int chunkSize = 10;
     private const string pathToTiles = "Prefabs/Tiles";
-    public GameObject DefaultTile;
+    public GameObject DefaultChunk;
     private Camera playerCamera;
     public Material[] Materials;
 
     private void Awake()
     {
-        gameController = new GameController(10, 10, 10);
-        tileGameObjects = new GameObject[gameController.GetGameModel().Tiles.GetLength(0), gameController.GetGameModel().Tiles.GetLength(1), gameController.GetGameModel().Tiles.GetLength(2)];
+        gameController = new GameController(100, 100, 100);
+        gameChunks = new GameObject[gameController.GetGameModel().Tiles.GetLength(0) / chunkSize, gameController.GetGameModel().Tiles.GetLength(2) / chunkSize];
         playerCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         //Materials = new Material[Enum.GetNames(typeof(TileType)).Length];
     }
@@ -37,147 +38,346 @@ public class GameView : MonoBehaviour
 
     void Inputs()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                string blockHit = hit.transform.name;
-
-                string[] blockInfo = blockHit.Split(' ');
-
-                int x = int.Parse(blockInfo[1]);
-                int y = int.Parse(blockInfo[2]);
-                int z = int.Parse(blockInfo[3]);
-
-                gameController.DestroyTile(x, y, z);
-
-                UpdateTile(x, y, z, gameController.GetGameModel());
-            }
-        }
-
-        if (Input.GetMouseButtonDown(1))
-        {
-            Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-
-            if (Physics.Raycast(ray, out hit))
-            {
-                Vector3 vector = hit.normal;
-                Transform transform = hit.collider.transform;
-
-                string blockHit = hit.transform.name;
-
-                string[] blockInfo = blockHit.Split(' ');
-
-                int x = int.Parse(blockInfo[1]);
-                int y = int.Parse(blockInfo[2]);
-                int z = int.Parse(blockInfo[3]);
-
-                GameModel gameModel = gameController.GetGameModel();
-
-                if (vector == transform.right)
-                {
-                    gameController.PlaceTile(x + 1, y, z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x + 1, y, z, gameController.GetGameModel());
-                }
-                if (vector == -transform.right)
-                {
-                    gameController.PlaceTile(x - 1, y, z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x - 1, y, z, gameController.GetGameModel());
-                }
-                if (vector == transform.forward)
-                {
-                    gameController.PlaceTile(x, y, z + 1, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x, y, z + 1, gameController.GetGameModel());
-                }
-                if (vector == -transform.forward)
-                {
-                    gameController.PlaceTile(x, y, z - 1, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x, y, z - 1, gameController.GetGameModel());
-                }
-                if (vector == transform.up)
-                {
-                    gameController.PlaceTile(x, y + 1, z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x, y + 1, z, gameController.GetGameModel());
-                }
-                if (vector == -transform.up)
-                {
-                    gameController.PlaceTile(x, y - 1, z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
-                    UpdateTile(x, y - 1, z, gameController.GetGameModel());
-                }
-
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            gameController.GetGameModel().Inventory.SelectedBlock = 0;
-            Debug.Log("1");
-        }
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            gameController.GetGameModel().Inventory.SelectedBlock = 1;
-            Debug.Log("2");
-        }
+        
     }
 
     private void RenderTiles()
     {
         GameModel gameModel = gameController.GetGameModel();
 
-        for (int x = 0; x < gameModel.Tiles.GetLength(0); x++)
+        for (int x = 0; x < gameChunks.GetLength(0); x++)
         {
-            for (int y = 0; y < gameModel.Tiles.GetLength(1); y++)
+            for (int z = 0; z < gameChunks.GetLength(1); z++)
             {
-                for (int z = 0; z < gameModel.Tiles.GetLength(2); z++)
-                {
-                    UpdateTile(x, y, z, gameModel);
-                }
+                UpdateChunk(x, z, gameModel);
             }
         }
     }
 
-    private void UpdateTile(int x, int y, int z, GameModel gameModel)
+    private void UpdateChunk(int chunkX, int chunkZ, GameModel gameModel)
     {
-        if (gameModel.Tiles.GetLength(0) > x && x >= 0 && gameModel.Tiles.GetLength(1) > y && y >= 0 && gameModel.Tiles.GetLength(2) > z && z >= 0)
+        if (gameChunks[chunkX, chunkZ] != null)
         {
-            if (tileGameObjects[x, y, z] == null && gameModel.Tiles[x, y, z] != null)
+            Destroy(gameChunks[chunkX, chunkZ]);
+            gameChunks[chunkX, chunkZ] = null;
+        }
+
+        Mesh mesh;
+
+        mesh = new Mesh();
+
+        gameChunks[chunkX, chunkZ] = Instantiate(DefaultChunk, new Vector3(0, 0, 0) * chunkSize, new Quaternion());
+
+        gameChunks[chunkX, chunkZ].GetComponent<MeshFilter>().mesh = mesh;
+
+        var meshRenderer = gameChunks[chunkX, chunkZ].GetComponent<MeshRenderer>();
+
+        meshRenderer.material.mainTexture.wrapMode = TextureWrapMode.Repeat;
+
+        RenderBlock(chunkX, chunkZ, mesh, gameModel);
+
+        mesh.RecalculateNormals();
+
+        //gameChunks[x, z]
+    }
+
+    private void RenderBlock(int chunkX, int chunkZ, Mesh mesh, GameModel gameModel)
+    {
+        Vector3 ChunkPos = new Vector3(chunkX, 0, chunkZ) * chunkSize;
+
+        List<Vector3> vectors = new List<Vector3>();
+        List<int> triangles = new List<int>();
+
+        for (int x = chunkX * chunkSize; x < chunkX * chunkSize + chunkSize; x++)
+        {
+            for (int z = chunkZ * chunkSize; z < chunkZ * chunkSize + chunkSize; z++)
             {
-                tileGameObjects[x, y, z] = Instantiate(DefaultTile, new Vector3(x, y, z), new Quaternion());
-                var meshRenderer = DefaultTile.GetComponent<MeshRenderer>();
+                for (int y = 0; y < gameModel.Tiles.GetLength(1); y++)
+                {
+                    if (gameModel.Tiles[x, y, z] != null)
+                    {
+                        //TOP
+                        if ((y < gameModel.Tiles.GetLength(1) - 1 && gameModel.Tiles[x, y + 1, z] == null) || y == gameModel.Tiles.GetLength(1) - 1)
+                        {
+                            int index4 = vectors.IndexOf(new Vector3(x, y + 1, z));
+                            int index5 = vectors.IndexOf(new Vector3(x + 1, y + 1, z));
+                            int index6 = vectors.IndexOf(new Vector3(x + 1, y + 1, z + 1));
+                            int index7 = vectors.IndexOf(new Vector3(x, y + 1, z + 1));
 
-                int index = (int)gameModel.Tiles[x, y, z].TileType;
+                            if (index4 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z));
+                                index4 = vectors.Count - 1;
+                            }
 
-                var material = Materials[index];
-                meshRenderer.sharedMaterial = material;
+                            if (index5 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z));
+                                index5 = vectors.Count - 1;
+                            }
 
-                tileGameObjects[x, y, z].name = gameModel.Tiles[x, y, z].TileType.ToString() + $" {x} {y} {z}";
-            }
-            else if (tileGameObjects[x, y, z] != null && gameModel.Tiles[x, y, z] == null)
-            {
-                Destroy(tileGameObjects[x, y, z]);
+                            if (index6 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z + 1));
+                                index6 = vectors.Count - 1;
+                            }
 
-                tileGameObjects[x, y, z] = null;
-            }
-            if (tileGameObjects[x, y, z] != null && gameModel.Tiles[x, y, z] != null && (tileGameObjects[x, y, z].name.Split(' ')[0] != gameModel.Tiles[x, y, z].TileType.ToString() || tileGameObjects[x, y, z].GetComponent<MeshRenderer>().material != Materials[(int)gameModel.Tiles[x, y, z].TileType]))
-            {
-                Destroy(tileGameObjects[x, y, z]);
+                            if (index7 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z + 1));
+                                index7 = vectors.Count - 1;
+                            }
 
-                tileGameObjects[x, y, z] = null;
+                            //Top 4, 7, 5, 5, 7, 6,
+                            triangles.Add(index4);
+                            triangles.Add(index7);
+                            triangles.Add(index5);
+                            triangles.Add(index5);
+                            triangles.Add(index7);
+                            triangles.Add(index6);
+                        }
+                        //BOTTOM
+                        if ((y > 0 && gameModel.Tiles[x, y - 1, z] == null) || y == 0)
+                        {
+                            int index0 = vectors.IndexOf(new Vector3(x, y, z));
+                            int index1 = vectors.IndexOf(new Vector3(x + 1, y, z));
+                            int index2 = vectors.IndexOf(new Vector3(x + 1, y, z + 1));
+                            int index3 = vectors.IndexOf(new Vector3(x, y, z + 1));
 
-                tileGameObjects[x, y, z] = Instantiate(DefaultTile, new Vector3(x, y, z), new Quaternion());
-                var meshRenderer = DefaultTile.GetComponent<MeshRenderer>();
+                            if (index0 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z));
+                                index0 = vectors.Count - 1;
+                            }
 
-                int index = (int)gameModel.Tiles[x, y, z].TileType;
+                            if (index1 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z));
+                                index1 = vectors.Count - 1;
+                            }
 
-                var material = Materials[index];
-                meshRenderer.sharedMaterial = material;
+                            if (index2 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z + 1));
+                                index2 = vectors.Count - 1;
+                            }
 
-                tileGameObjects[x, y, z].name = gameModel.Tiles[x, y, z].TileType.ToString() + $" {x} {y} {z}";
+                            if (index3 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z + 1));
+                                index3 = vectors.Count - 1;
+                            }
+
+                            //Bottom 0, 1, 3, 2, 3, 1,
+                            triangles.Add(index0);
+                            triangles.Add(index1);
+                            triangles.Add(index3);
+                            triangles.Add(index2);
+                            triangles.Add(index3);
+                            triangles.Add(index1);
+                        }
+                        //RIGHT
+                        if ((x < gameModel.Tiles.GetLength(0) - 1 && gameModel.Tiles[x + 1, y, z] == null) || x == gameModel.Tiles.GetLength(0) - 1)
+                        {
+                            int index1 = vectors.IndexOf(new Vector3(x + 1, y, z));
+                            int index2 = vectors.IndexOf(new Vector3(x + 1, y, z + 1));
+                            int index5 = vectors.IndexOf(new Vector3(x + 1, y + 1, z));
+                            int index6 = vectors.IndexOf(new Vector3(x + 1, y + 1, z + 1));
+
+                            if (index1 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z));
+                                index1 = vectors.Count - 1;
+                            }
+
+                            if (index2 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z + 1));
+                                index2 = vectors.Count - 1;
+                            }
+
+                            if (index5 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z));
+                                index5 = vectors.Count - 1;
+                            }
+
+                            if (index6 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z + 1));
+                                index6 = vectors.Count - 1;
+                            }
+
+                            //Right 1, 5, 2, 2, 5, 6,
+                            triangles.Add(index1);
+                            triangles.Add(index5);
+                            triangles.Add(index2);
+                            triangles.Add(index2);
+                            triangles.Add(index5);
+                            triangles.Add(index6);
+                        }
+                        //LEFT
+                        if ((x > 0 && gameModel.Tiles[x - 1, y, z] == null) || x == 0)
+                        {
+                            int index0 = vectors.IndexOf(new Vector3(x, y, z));
+                            int index3 = vectors.IndexOf(new Vector3(x, y, z + 1));
+                            int index4 = vectors.IndexOf(new Vector3(x, y + 1, z));
+                            int index7 = vectors.IndexOf(new Vector3(x, y + 1, z + 1));
+
+                            if (index0 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z));
+                                index0 = vectors.Count - 1;
+                            }
+
+                            if (index3 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z + 1));
+                                index3 = vectors.Count - 1;
+                            }
+
+                            if (index4 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z));
+                                index4 = vectors.Count - 1;
+                            }
+
+                            if (index7 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z + 1));
+                                index7 = vectors.Count - 1;
+                            }
+
+                            //Left 3, 4, 0, 3, 7, 4
+                            triangles.Add(index3);
+                            triangles.Add(index4);
+                            triangles.Add(index0);
+                            triangles.Add(index3);
+                            triangles.Add(index7);
+                            triangles.Add(index4);
+                        }
+                        //FRONT
+                        if ((z > 0 && gameModel.Tiles[x, y, z - 1] == null) || z == 0)
+                        {
+                            int index0 = vectors.IndexOf(new Vector3(x, y, z));
+                            int index1 = vectors.IndexOf(new Vector3(x + 1, y, z));
+                            int index4 = vectors.IndexOf(new Vector3(x, y + 1, z));
+                            int index5 = vectors.IndexOf(new Vector3(x + 1, y + 1, z));
+
+                            if (index0 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z));
+                                index0 = vectors.Count - 1;
+                            }
+
+                            if (index1 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z));
+                                index1 = vectors.Count - 1;
+                            }
+
+                            if (index4 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z));
+                                index4 = vectors.Count - 1;
+                            }
+
+                            if (index5 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z));
+                                index5 = vectors.Count - 1;
+                            }
+
+                            //Front 0, 4, 1, 1, 4, 5,
+                            triangles.Add(index0);
+                            triangles.Add(index4);
+                            triangles.Add(index1);
+                            triangles.Add(index1);
+                            triangles.Add(index4);
+                            triangles.Add(index5);
+                        }
+                        //BACK
+                        if ((z < gameModel.Tiles.GetLength(0) - 1 && gameModel.Tiles[x, y, z + 1] == null) || z == gameModel.Tiles.GetLength(0) - 1)
+                        {
+                            int index3 = vectors.IndexOf(new Vector3(x, y, z + 1));
+                            int index2 = vectors.IndexOf(new Vector3(x + 1, y, z + 1));
+                            int index7 = vectors.IndexOf(new Vector3(x, y + 1, z + 1));
+                            int index6 = vectors.IndexOf(new Vector3(x + 1, y + 1, z + 1));
+
+                            if (index3 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y, z + 1));
+                                index3 = vectors.Count - 1;
+                            }
+
+                            if (index2 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y, z + 1));
+                                index2 = vectors.Count - 1;
+                            }
+
+                            if (index7 == -1)
+                            {
+                                vectors.Add(new Vector3(x, y + 1, z + 1));
+                                index7 = vectors.Count - 1;
+                            }
+
+                            if (index6 == -1)
+                            {
+                                vectors.Add(new Vector3(x + 1, y + 1, z + 1));
+                                index6 = vectors.Count - 1;
+                            }
+
+                            //Front 2, 7, 3, 6, 7, 2,
+                            triangles.Add(index2);
+                            triangles.Add(index7);
+                            triangles.Add(index3);
+                            triangles.Add(index6);
+                            triangles.Add(index7);
+                            triangles.Add(index2);
+                        }
+
+                    }    
+                }
             }
         }
+
+        mesh.vertices = vectors.ToArray();
+        mesh.triangles = triangles.ToArray();
+
+        /*
+        var cubeVector = new Vector3[]
+        {
+            new Vector3(0, 0, 0) + pos,
+            new Vector3(1, 0, 0) + pos,
+            new Vector3(1, 0, 1) + pos,
+            new Vector3(0, 0, 1) + pos,
+            new Vector3(0, 1, 0) + pos,
+            new Vector3(1, 1, 0) + pos,
+            new Vector3(1, 1, 1) + pos,
+            new Vector3(0, 1, 1) + pos
+        };
+
+        var cubeTriangles = new int[]
+        {
+            //Bottom
+            0, 1, 3, 2, 3, 1,
+            //Right
+            1, 5, 2, 2, 5, 6,
+            //Top
+            4, 7, 5, 5, 7, 6,
+            //Front
+            0, 4, 1, 1, 4, 5,
+            //Behind
+            2, 7, 3, 6, 7, 2,
+            //Left
+            3, 4, 0, 3, 7, 4
+        };
+        //1, 5, 2, 2, 5, 6
+        
+
+        mesh.vertices = cubeVector;
+        mesh.triangles = cubeTriangles;
+        */
     }
 }
