@@ -22,8 +22,8 @@ namespace Assets.Scripts.Services
         {
             TileModel[,,] tiles = new TileModel[width, height, lenght];
 
-            int maxHeight = 4;
-            int minHeight = 3;
+            int maxHeight = 5;
+            int minHeight = 4;
 
             for (int x = 0; x < width; x++)
             {
