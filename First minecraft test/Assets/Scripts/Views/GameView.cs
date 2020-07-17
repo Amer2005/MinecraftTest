@@ -14,7 +14,7 @@ public class GameView : MonoBehaviour
     private const string pathToTiles = "Prefabs/Tiles";
     public GameObject DefaultChunk;
     private Camera playerCamera;
-    public Material[] Materials;
+    public Vector2[] Materials;
 
     private void Awake()
     {
@@ -104,7 +104,7 @@ public class GameView : MonoBehaviour
 
                 Debug.Log(blockPos);
 
-                gameController.PlaceTile((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, TileType.DirtTile);
+                gameController.PlaceTile((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
             }
@@ -186,6 +186,15 @@ public class GameView : MonoBehaviour
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
+        {
+            gameModel.Inventory.SelectedBlock = 0;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            gameModel.Inventory.SelectedBlock = 1;
+        }
     }
 
     private void RenderTiles()
@@ -237,35 +246,42 @@ public class GameView : MonoBehaviour
         //gameChunks[x, z]
     }
 
-    private void GenerateQuad(Dictionary<Vector3, int> used, List<Vector3> vectors, List<int> triangles, List<Vector2> uvs, Vector3[] vertPos, int[] newTriangles)
+    private int[] GenerateQuad(Dictionary<Vector3, int> used, List<Vector3> vectors, List<int> triangles, List<Vector2> uvs, Vector3[] vertPos, int[] newTriangles)
     {
         int[] indexesInt = new int[4];
         //indexesInt[0] = vectors.IndexOf(vertPos[0]);
         //indexesInt[1] = vectors.IndexOf(vertPos[1]);
         //indexesInt[2] = vectors.IndexOf(vertPos[2]);
         //indexesInt[3] = vectors.IndexOf(vertPos[3]);
+        /*
+        Vector3 min = new Vector3();
 
+        min = vertPos[0];
+        */
         for (int i = 0; i < 4; i++)
         {
-            if(!used.ContainsKey(vertPos[i]))
-            {
-                used.Add(vertPos[i], vectors.Count);
+            //if(!used.ContainsKey(vertPos[i]))
+            //{
+                //used.Add(vertPos[i], vectors.Count);
+                uvs.Add(new Vector2());
                 vectors.Add(vertPos[i]);
-            }
+            //}
 
-            indexesInt[i] = used[vertPos[i]];
+            indexesInt[i] = vectors.Count - 1;
+
+            //indexesInt[i] = used[vertPos[i]];
         }
 
         for (int i = 0; i < newTriangles.Length; i++)
         {
             triangles.Add(indexesInt[newTriangles[i]]);
         }
+
+        return indexesInt;
     }
 
     private void RenderBlock(int chunkX, int chunkZ, Mesh mesh, GameModel gameModel)
     {
-        Vector3 ChunkPos = new Vector3(chunkX, 0, chunkZ) * chunkSize;
-
         Dictionary<Vector3, int> used = new Dictionary<Vector3, int>();
 
         List<Vector3> vectors = new List<Vector3>();
@@ -280,48 +296,95 @@ public class GameView : MonoBehaviour
                 {
                     if (gameModel.Tiles[x, y, z] != null)
                     {
+                        int[] indexes;
+
+                        float pixelSize = 16;
+                        float tileX = Materials[(int)gameModel.Tiles[x, y, z].TileType].x;
+                        float tileY = Materials[(int)gameModel.Tiles[x, y, z].TileType].y;
+                        float tilePerc = 1 / pixelSize;
+
+                        float umin = tilePerc * tileX;
+                        float umax = tilePerc * (tileX + 1);
+                        float vmin = tilePerc * tileY;
+                        float vmax = tilePerc * (tileY + 1);
+
                         //TOP
                         if ((y < gameModel.Tiles.GetLength(1) - 1 && gameModel.Tiles[x, y + 1, z] == null) || y == gameModel.Tiles.GetLength(1) - 1)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                                 new Vector3[] { new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1), new Vector3(x, y + 1, z + 1) },
                                 new int[] { 0, 3, 1, 1, 3, 2 });
+
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umax, vmax);
+                            uvs[indexes[3]] = new Vector2(umin, vmax);
                         }
 
                         //BOTTOM
                         if ((y > 0 && gameModel.Tiles[x, y - 1, z] == null) || y == 0)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x, y, z + 1) },
                             new int[] { 0, 1, 3, 2, 3, 1 });
+
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umax, vmax);
+                            uvs[indexes[3]] = new Vector2(umin, vmax);
                         }
                         //RIGHT
                         if ((x < gameModel.Tiles.GetLength(0) - 1 && gameModel.Tiles[x + 1, y, z] == null) || x == gameModel.Tiles.GetLength(0) - 1)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
+
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umin, vmax);
+                            uvs[indexes[2]] = new Vector2(umax, vmin);
+                            uvs[indexes[3]] = new Vector2(umax, vmax);
+                            /*
+                             uvs[indexes[0]] = new Vector2(umax, vmin);
+                            uvs[indexes[1]] = new Vector2(umax, vmax);
+                            uvs[indexes[2]] = new Vector2(umax, vmin);
+                            uvs[indexes[3]] = new Vector2(umax, vmax); 
+                            */
                         }
                         //LEFT
                         if ((x > 0 && gameModel.Tiles[x - 1, y, z] == null) || x == 0)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x, y, z + 1), new Vector3(x, y + 1, z), new Vector3(x, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 1, 3, 2 });
+
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umin, vmax);
+                            uvs[indexes[2]] = new Vector2(umax, vmin);
+                            uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                         //FRONT
                         if ((z > 0 && gameModel.Tiles[x, y, z - 1] == null) || z == 0)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umin, vmax);
+                            uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                         //BACK
                         if ((z < gameModel.Tiles.GetLength(2) - 1 && gameModel.Tiles[x, y, z + 1] == null) || z == gameModel.Tiles.GetLength(2) - 1)
                         {
-                            GenerateQuad(used, vectors, triangles, uvs,
+                            indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z + 1), new Vector3(x + 1, y, z + 1), new Vector3(x, y + 1, z + 1), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 3, 2, 1 });
+
+                            uvs[indexes[0]] = new Vector2(umin, vmin);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umin, vmax);
+                            uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                     }
                 }
@@ -331,47 +394,10 @@ public class GameView : MonoBehaviour
         for (int i = 0; i < uvs.Count; i++)
         {
             //uvs[i] = new Vector2(vectors[i].x * 0.0625f, vectors[i].z * 0.0625f);
-
-            Debug.Log(vectors[i]);
         }
 
         mesh.vertices = vectors.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
-
-        /*
-        var cubeVector = new Vector3[]
-        {
-            new Vector3(0, 0, 0) + pos,
-            new Vector3(1, 0, 0) + pos,
-            new Vector3(1, 0, 1) + pos,
-            new Vector3(0, 0, 1) + pos,
-            new Vector3(0, 1, 0) + pos,
-            new Vector3(1, 1, 0) + pos,
-            new Vector3(1, 1, 1) + pos,
-            new Vector3(0, 1, 1) + pos
-        };
-
-        var cubeTriangles = new int[]
-        {
-            //Bottom
-            0, 1, 3, 2, 3, 1,
-            //Right
-            1, 5, 2, 2, 5, 6,
-            //Top
-            4, 7, 5, 5, 7, 6,
-            //Front
-            0, 4, 1, 1, 4, 5,
-            //Behind
-            2, 7, 3, 6, 7, 2,
-            //Left
-            3, 4, 0, 3, 7, 4
-        };
-        //1, 5, 2, 2, 5, 6
-        
-
-        mesh.vertices = cubeVector;
-        mesh.triangles = cubeTriangles;
-        */
     }
 }

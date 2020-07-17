@@ -22,8 +22,10 @@ namespace Assets.Scripts.Services
         {
             TileModel[,,] tiles = new TileModel[width, height, lenght];
 
-            int maxHeight = 5;
+            int maxHeight = 4;
             int minHeight = 4;
+
+           // tiles[0, 0, 0] = tileFactory.CreateTile(new Point(0, 0, 0), TileType.DirtTile);
 
             for (int x = 0; x < width; x++)
             {

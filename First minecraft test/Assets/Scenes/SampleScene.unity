@@ -489,8 +489,8 @@ MonoBehaviour:
   DefaultChunk: {fileID: 5858966076221165606, guid: 48ac5dd215d17a646af20e408f883101,
     type: 3}
   Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 2100000, guid: 5678214a5efd9484c95d195b3b6f1989, type: 2}
+  - {x: 4, y: 11}
+  - {x: 2, y: 15}
 --- !u!4 &879508489
 Transform:
   m_ObjectHideFlags: 0
