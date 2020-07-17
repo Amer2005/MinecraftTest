@@ -4,5 +4,6 @@ using System.Collections.Generic;
 public enum TileType
 {
     DefaultTile = 0,
-    DirtTile = 1
+    DirtTile = 1,
+    GrassTile = 2
 }

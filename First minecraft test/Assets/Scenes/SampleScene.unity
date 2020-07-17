@@ -428,7 +428,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 765164277}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 6.27, z: 0}
+  m_LocalPosition: {x: 0, y: 34.07, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 961311282}
@@ -452,7 +452,7 @@ MonoBehaviour:
   speed: 6
   gravity: -19.62
   GroundCheck: {fileID: 364565183}
-  groundDistance: 0.4
+  groundDistance: 0.2
   groundMask:
     serializedVersion: 2
     m_Bits: 256
@@ -488,9 +488,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultChunk: {fileID: 5858966076221165606, guid: 48ac5dd215d17a646af20e408f883101,
     type: 3}
-  Materials:
-  - {x: 4, y: 11}
+  MaterialsSideTop:
+  - {x: 0, y: 1}
   - {x: 2, y: 15}
+  - {x: 2, y: 11}
+  MaterialsSideBottom:
+  - {x: 0, y: 1}
+  - {x: -1, y: 15}
+  - {x: 2, y: 15}
+  MaterialsSideRight:
+  - {x: 0, y: 1}
+  - {x: 2, y: 15}
+  - {x: 4, y: 11}
+  MaterialsSideLeft:
+  - {x: 0, y: 1}
+  - {x: 2, y: 15}
+  - {x: 4, y: 11}
+  MaterialsSideFront:
+  - {x: 0, y: 1}
+  - {x: 2, y: 15}
+  - {x: 4, y: 11}
+  MaterialsSideBack:
+  - {x: 0, y: 1}
+  - {x: 2, y: 15}
+  - {x: 4, y: 11}
 --- !u!4 &879508489
 Transform:
   m_ObjectHideFlags: 0

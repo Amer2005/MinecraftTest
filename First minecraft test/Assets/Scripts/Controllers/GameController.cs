@@ -35,6 +35,7 @@ namespace Assets.Scripts.Controllers
                 gameModel.Inventory = new InventoryModel(9);
                 gameModel.Inventory.HotBar[0] = TileType.DefaultTile;
                 gameModel.Inventory.HotBar[1] = TileType.DirtTile;
+                gameModel.Inventory.HotBar[2] = TileType.GrassTile;
                 gameModel.Tiles = tileService.GenerateTileMap(worldWidth, worldHeight, worldLenght);
             }
 

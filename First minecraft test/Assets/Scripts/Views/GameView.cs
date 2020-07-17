@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Models;
 using Assets.Scripts.Models.Tiles;
+using Assets.Scripts.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,11 +15,44 @@ public class GameView : MonoBehaviour
     private const string pathToTiles = "Prefabs/Tiles";
     public GameObject DefaultChunk;
     private Camera playerCamera;
-    public Vector2[] Materials;
+    public Vector2[] MaterialsSideTop;
+    public Vector2[] MaterialsSideBottom;
+    public Vector2[] MaterialsSideRight;
+    public Vector2[] MaterialsSideLeft;
+    public Vector2[] MaterialsSideFront;
+    public Vector2[] MaterialsSideBack;
+    private Vector2[,] MaterialsSides;
+    private PerlinNoiseService perlinNoiseService;
 
     private void Awake()
     {
-        gameController = new GameController(100, 10, 100);
+        MaterialsSides = new Vector2[Enum.GetNames(typeof(TileType)).Length, 6];
+
+        perlinNoiseService = new PerlinNoiseService();
+
+        for (int i = 0;i < MaterialsSides.GetLength(0);i++)
+        {
+            MaterialsSides[i,0] = MaterialsSideTop[i];
+            if (MaterialsSideBottom[i].x != -1)
+            {
+                MaterialsSides[i, 1] = MaterialsSideBottom[i];
+                MaterialsSides[i, 2] = MaterialsSideRight[i];
+                MaterialsSides[i, 3] = MaterialsSideLeft[i];
+                MaterialsSides[i, 4] = MaterialsSideFront[i];
+                MaterialsSides[i, 5] = MaterialsSideBack[i];
+            }
+            else
+            {
+                MaterialsSides[i, 1] = MaterialsSideTop[i];
+                MaterialsSides[i, 2] = MaterialsSideTop[i];
+                MaterialsSides[i, 3] = MaterialsSideTop[i];
+                MaterialsSides[i, 4] = MaterialsSideTop[i];
+                MaterialsSides[i, 5] = MaterialsSideTop[i];
+            }
+
+        }
+
+        gameController = new GameController(100, 20, 100);
         gameChunks = new GameObject[gameController.GetGameModel().Tiles.GetLength(0) / chunkSize, gameController.GetGameModel().Tiles.GetLength(2) / chunkSize];
         playerCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         //Materials = new Material[Enum.GetNames(typeof(TileType)).Length];
@@ -195,6 +229,34 @@ public class GameView : MonoBehaviour
         {
             gameModel.Inventory.SelectedBlock = 1;
         }
+        if (Input.GetKeyDown(KeyCode.Alpha3))
+        {
+            gameModel.Inventory.SelectedBlock = 2;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            gameModel.Inventory.SelectedBlock = 3;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            gameModel.Inventory.SelectedBlock = 4;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            gameModel.Inventory.SelectedBlock = 5;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha7))
+        {
+            gameModel.Inventory.SelectedBlock = 6;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha8))
+        {
+            gameModel.Inventory.SelectedBlock = 7;
+        }
+        if (Input.GetKeyDown(KeyCode.Alpha9))
+        {
+            gameModel.Inventory.SelectedBlock = 8;
+        }
     }
 
     private void RenderTiles()
@@ -299,14 +361,14 @@ public class GameView : MonoBehaviour
                         int[] indexes;
 
                         float pixelSize = 16;
-                        float tileX = Materials[(int)gameModel.Tiles[x, y, z].TileType].x;
-                        float tileY = Materials[(int)gameModel.Tiles[x, y, z].TileType].y;
                         float tilePerc = 1 / pixelSize;
+                        float tileX;
+                        float tileY;
 
-                        float umin = tilePerc * tileX;
-                        float umax = tilePerc * (tileX + 1);
-                        float vmin = tilePerc * tileY;
-                        float vmax = tilePerc * (tileY + 1);
+                        float umin;
+                        float umax;
+                        float vmin;
+                        float vmax;
 
                         //TOP
                         if ((y < gameModel.Tiles.GetLength(1) - 1 && gameModel.Tiles[x, y + 1, z] == null) || y == gameModel.Tiles.GetLength(1) - 1)
@@ -314,6 +376,18 @@ public class GameView : MonoBehaviour
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                                 new Vector3[] { new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1), new Vector3(x, y + 1, z + 1) },
                                 new int[] { 0, 3, 1, 1, 3, 2 });
+
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 0];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
+
+                            //tileX = Vector2[]
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
@@ -328,6 +402,16 @@ public class GameView : MonoBehaviour
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x, y, z + 1) },
                             new int[] { 0, 1, 3, 2, 3, 1 });
 
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 1];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
+
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
                             uvs[indexes[2]] = new Vector2(umax, vmax);
@@ -340,9 +424,19 @@ public class GameView : MonoBehaviour
                             new Vector3[] { new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
 
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 2];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
+
                             uvs[indexes[0]] = new Vector2(umin, vmin);
-                            uvs[indexes[1]] = new Vector2(umin, vmax);
-                            uvs[indexes[2]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umin, vmax);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
                             uvs[indexes[3]] = new Vector2(umax, vmax);
                             /*
                              uvs[indexes[0]] = new Vector2(umax, vmin);
@@ -358,9 +452,19 @@ public class GameView : MonoBehaviour
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x, y, z + 1), new Vector3(x, y + 1, z), new Vector3(x, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 1, 3, 2 });
 
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 3];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
+
                             uvs[indexes[0]] = new Vector2(umin, vmin);
-                            uvs[indexes[1]] = new Vector2(umin, vmax);
-                            uvs[indexes[2]] = new Vector2(umax, vmin);
+                            uvs[indexes[2]] = new Vector2(umin, vmax);
+                            uvs[indexes[1]] = new Vector2(umax, vmin);
                             uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                         //FRONT
@@ -369,6 +473,17 @@ public class GameView : MonoBehaviour
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
+
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 4];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
+
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
                             uvs[indexes[2]] = new Vector2(umin, vmax);
@@ -380,6 +495,16 @@ public class GameView : MonoBehaviour
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z + 1), new Vector3(x + 1, y, z + 1), new Vector3(x, y + 1, z + 1), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 3, 2, 1 });
+
+                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 5];
+
+                            tileX = material.x;
+                            tileY = material.y;
+
+                            umin = tilePerc * tileX;
+                            umax = tilePerc * (tileX + 1);
+                            vmin = tilePerc * tileY;
+                            vmax = tilePerc * (tileY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);

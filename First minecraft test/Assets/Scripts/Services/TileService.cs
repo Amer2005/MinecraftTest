@@ -12,18 +12,20 @@ namespace Assets.Scripts.Services
     {
         private TileFactory tileFactory;
         private RandomService randomService;
+        private PerlinNoiseService perlinNoise;
         public TileService()
         {
             tileFactory = new TileFactory();
             randomService = new RandomService();
+            perlinNoise = new PerlinNoiseService();
         }
 
         public TileModel[,,] GenerateTileMap(int width, int height, int lenght)
         {
             TileModel[,,] tiles = new TileModel[width, height, lenght];
 
-            int maxHeight = 4;
             int minHeight = 4;
+            int maxHeight = 6;
 
            // tiles[0, 0, 0] = tileFactory.CreateTile(new Point(0, 0, 0), TileType.DirtTile);
 
@@ -31,9 +33,11 @@ namespace Assets.Scripts.Services
             {
                 for (int z = 0; z < lenght; z++)
                 {
-                    int h = randomService.GenerateInt(minHeight, maxHeight + 1);
+                    int h = calculateHeight(x, z, 3, tiles);
 
-                    for(int y = 0;y < h;y++)
+                    tiles[x, h - 1, z] = tileFactory.CreateTile(new Point(x, (int)h - 1, z), TileType.GrassTile);
+
+                    for (int y = 0;y < h - 1;y++)
                     {
                         tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), TileType.DirtTile);
                     }
@@ -41,6 +45,18 @@ namespace Assets.Scripts.Services
             }
 
             return tiles;
+        }
+
+        private int calculateHeight(float x, float y, float scale, TileModel[,,] tiles)
+        {
+            float xCord = (float)x / tiles.GetLength(0) * scale;
+            float yCord = (float)y / tiles.GetLength(2) * scale;
+
+            float sample = perlinNoise.perlinNoise(xCord, yCord);
+
+            float height = sample * (tiles.GetLength(1) - 1); 
+
+            return (int)Math.Round(height);
         }
     }
 }
