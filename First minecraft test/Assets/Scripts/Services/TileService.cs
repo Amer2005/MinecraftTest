@@ -13,11 +13,13 @@ namespace Assets.Scripts.Services
         private TileFactory tileFactory;
         private RandomService randomService;
         private PerlinNoiseService perlinNoise;
+        private InventoryService inventoryService;
         public TileService()
         {
             tileFactory = new TileFactory();
             randomService = new RandomService();
             perlinNoise = new PerlinNoiseService();
+            inventoryService = new InventoryService();
         }
 
         public TileModel[,,] GenerateTileMap(int width, int height, int lenght)
@@ -57,6 +59,42 @@ namespace Assets.Scripts.Services
             float height = sample * (tiles.GetLength(1) - 1); 
 
             return (int)Math.Round(height);
+        }
+
+        public void PlaceBlockFromSlectedSlot(int x, int y, int z, GameModel gameModel)
+        {
+            if (gameModel.Tiles.GetLength(0) > x && x >= 0 && gameModel.Tiles.GetLength(1) > y && y >= 0 && gameModel.Tiles.GetLength(2) > z && z >= 0)
+            {
+                InventorySlotModel slot = inventoryService.GetBlockFromSelectedSlot(gameModel);
+                if (slot.ItemCount > 0)
+                {
+                    gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), slot.Item);
+                    gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock].ItemCount--;
+                }
+            }
+        }
+
+        public void PlaceBlock(int x, int y, int z, TileType tileType, GameModel gameModel)
+        {
+            if (gameModel.Tiles.GetLength(0) > x && x >= 0 && gameModel.Tiles.GetLength(1) > y && y >= 0 && gameModel.Tiles.GetLength(2) > z && z >= 0)
+            {
+                gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), tileType);
+            }
+        }
+
+        public void BreakBlock(int x, int y, int z, GameModel gameModel)
+        {
+            if (gameModel.Tiles.GetLength(0) > x && x >= 0 && gameModel.Tiles.GetLength(1) > y && y >= 0 && gameModel.Tiles.GetLength(2) > z && z >= 0)
+            {
+                if (gameModel.Tiles[x, y, z] != null)
+                {
+                    TileType tileType = gameModel.Tiles[x, y, z].TileType;
+
+                    inventoryService.AddItemToInventory(tileType, gameModel);
+
+                    gameModel.Tiles[x, y, z] = null;
+                }
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameView : MonoBehaviour
 {
@@ -23,12 +24,41 @@ public class GameView : MonoBehaviour
     public Vector2[] MaterialsSideBack;
     private Vector2[,] MaterialsSides;
     private PerlinNoiseService perlinNoiseService;
+    private InventoryService inventoryService;
+    private TileService tileService;
+    private const float pixelSize = 16;
 
+    private GameObject[] InvetorySlotsGameObjects;
+    private RawImage[] InventorySlotsImages;
+    private GameObject[] InventoryCountGameObjects;
+    private Text[] InventoryItemCounts;
     private void Awake()
     {
         MaterialsSides = new Vector2[Enum.GetNames(typeof(TileType)).Length, 6];
 
+        InvetorySlotsGameObjects = GameObject.FindGameObjectsWithTag("InventorySlots");
+
+        InventorySlotsImages = new RawImage[InvetorySlotsGameObjects.Length];
+
+        InventoryCountGameObjects = GameObject.FindGameObjectsWithTag("ItemCount");
+
+        InventoryItemCounts = new Text[InventoryCountGameObjects.Length];
+
+        for (int i = 0; i < InvetorySlotsGameObjects.Length; i++)
+        {
+            InventorySlotsImages[i] = InvetorySlotsGameObjects[i].GetComponent<RawImage>();
+        }
+
+        for (int i = 0; i < InventoryCountGameObjects.Length; i++)
+        {
+            InventoryItemCounts[i] = InventoryCountGameObjects[i].GetComponent<Text>();
+        }
+
         perlinNoiseService = new PerlinNoiseService();
+
+        inventoryService = new InventoryService();
+
+        tileService = new TileService();
 
         for (int i = 0;i < MaterialsSides.GetLength(0);i++)
         {
@@ -52,16 +82,40 @@ public class GameView : MonoBehaviour
 
         }
 
-        gameController = new GameController(100, 20, 100);
+        gameController = new GameController(100, 100, 100);
         gameChunks = new GameObject[gameController.GetGameModel().Tiles.GetLength(0) / chunkSize, gameController.GetGameModel().Tiles.GetLength(2) / chunkSize];
         playerCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         //Materials = new Material[Enum.GetNames(typeof(TileType)).Length];
     }
 
-    // Start is called before the first frame update
+    private void UpdateHotBar()
+    {
+        GameModel gameModel = gameController.GetGameModel();
+        for (int i = 0; i < gameModel.Inventory.HotBar.Length; i++)
+        {
+            if (gameModel.Inventory.HotBar[i].ItemCount <= 0)
+            {
+                InvetorySlotsGameObjects[i].SetActive(false);
+                InventoryCountGameObjects[i].SetActive(false);
+            }
+            else
+            {
+                InvetorySlotsGameObjects[i].SetActive(true);
+                InventoryCountGameObjects[i].SetActive(true);
+
+                Vector2 material = MaterialsSides[(int)gameModel.Inventory.HotBar[i].Item, 5];
+
+                InventorySlotsImages[i].uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
+
+                InventoryItemCounts[i].text = gameModel.Inventory.HotBar[i].ItemCount.ToString();
+            }
+        }
+    }
+    
     private void Start()
     {
         RenderTiles();
+        UpdateHotBar();
     }
 
     // Update is called once per frame
@@ -70,7 +124,7 @@ public class GameView : MonoBehaviour
         Inputs();
     }
 
-    void Inputs()
+    public void Inputs()
     {
         GameModel gameModel = gameController.GetGameModel();
 
@@ -81,8 +135,6 @@ public class GameView : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 Vector3 blockPos = hit.point;
-
-                Debug.Log(blockPos);
 
                 if (blockPos.y == (float)Math.Floor(blockPos.y))
                 {
@@ -136,11 +188,10 @@ public class GameView : MonoBehaviour
                 blockPos.y = (float)Math.Floor(blockPos.y);
                 blockPos.z = (float)Math.Floor(blockPos.z);
 
-                Debug.Log(blockPos);
-
-                gameController.PlaceTile((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock]);
+                tileService.PlaceBlockFromSlectedSlot((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
+                UpdateHotBar();
             }
         }
 
@@ -152,8 +203,6 @@ public class GameView : MonoBehaviour
             if (Physics.Raycast(ray, out hit))
             {
                 Vector3 blockPos = hit.point;
-
-                Debug.Log(blockPos);
 
                 if (blockPos.y == (float)Math.Floor(blockPos.y))
                 {
@@ -196,9 +245,7 @@ public class GameView : MonoBehaviour
                 blockPos.y = (float)Math.Floor(blockPos.y);
                 blockPos.z = (float)Math.Floor(blockPos.z);
 
-                Debug.Log(blockPos);
-
-                gameController.DestroyTile((int)blockPos.x, (int)blockPos.y, (int)blockPos.z);
+                tileService.BreakBlock((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
                 if((int)blockPos.x % (chunkSize - 1) == 0)
                 {
@@ -219,6 +266,8 @@ public class GameView : MonoBehaviour
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
             }
+
+            UpdateHotBar();
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
@@ -359,8 +408,6 @@ public class GameView : MonoBehaviour
                     if (gameModel.Tiles[x, y, z] != null)
                     {
                         int[] indexes;
-
-                        float pixelSize = 16;
                         float tilePerc = 1 / pixelSize;
                         float tileX;
                         float tileY;
