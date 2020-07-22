@@ -1,5 +1,6 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Models;
+using Assets.Scripts.Models.InventoryModels;
 using Assets.Scripts.Models.Tiles;
 using Assets.Scripts.Services;
 using System;
@@ -27,6 +28,7 @@ public class GameView : MonoBehaviour
     private InventoryService inventoryService;
     private TileService tileService;
     private const float pixelSize = 16;
+    private PlayerService playerService;
 
     private GameObject[] InvetorySlotsGameObjects;
     private RawImage[] InventorySlotsImages;
@@ -35,6 +37,8 @@ public class GameView : MonoBehaviour
     private void Awake()
     {
         MaterialsSides = new Vector2[Enum.GetNames(typeof(TileType)).Length, 6];
+
+        playerService = new PlayerService();
 
         InvetorySlotsGameObjects = GameObject.FindGameObjectsWithTag("InventorySlots");
 
@@ -103,7 +107,9 @@ public class GameView : MonoBehaviour
                 InvetorySlotsGameObjects[i].SetActive(true);
                 InventoryCountGameObjects[i].SetActive(true);
 
-                Vector2 material = MaterialsSides[(int)gameModel.Player.Inventory.HotBar[i].Item, 5];
+                BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
+
+                Vector2 material = MaterialsSides[(int)block.TileType, 5];
 
                 InventorySlotsImages[i].uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
 
@@ -188,7 +194,7 @@ public class GameView : MonoBehaviour
                 blockPos.y = (float)Math.Floor(blockPos.y);
                 blockPos.z = (float)Math.Floor(blockPos.z);
 
-                tileService.PlaceBlockFromSlectedSlot((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
+                playerService.RightClick((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
                 UpdateHotBar();
@@ -245,7 +251,7 @@ public class GameView : MonoBehaviour
                 blockPos.y = (float)Math.Floor(blockPos.y);
                 blockPos.z = (float)Math.Floor(blockPos.z);
 
-                tileService.BreakBlock((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
+                playerService.LeftClick((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
                 if((int)blockPos.x % (chunkSize - 1) == 0)
                 {
@@ -257,7 +263,7 @@ public class GameView : MonoBehaviour
                 }
                 if ((int)blockPos.z % (chunkSize - 1) == 0)
                 {
-                    UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize - 1, gameController.GetGameModel());
+                    UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize + 1, gameController.GetGameModel());
                 }
                 if ((int)blockPos.z % chunkSize == 0)
                 {
@@ -265,9 +271,9 @@ public class GameView : MonoBehaviour
                 }
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
-            }
 
-            UpdateHotBar();
+                UpdateHotBar();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))

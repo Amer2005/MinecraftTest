@@ -1,5 +1,7 @@
-﻿using Assets.Scripts.Factories;
+﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Factories;
 using Assets.Scripts.Models;
+using Assets.Scripts.Models.InventoryModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,8 +70,12 @@ namespace Assets.Scripts.Services
                 InventorySlotModel slot = inventoryService.GetBlockFromSelectedSlot(gameModel);
                 if (slot.ItemCount > 0)
                 {
-                    gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), slot.Item);
-                    gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
+                    if (slot.Item.ItemType == ItemType.Blocks)
+                    {
+                        BlockItemModel block = (BlockItemModel)slot.Item;
+                        gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), block.TileType);
+                        gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
+                    }
                 }
             }
         }

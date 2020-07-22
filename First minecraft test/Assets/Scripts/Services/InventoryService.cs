@@ -1,4 +1,6 @@
-﻿using Assets.Scripts.Models;
+﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Models;
+using Assets.Scripts.Models.InventoryModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,11 +30,15 @@ namespace Assets.Scripts.Services
             {
                 if (gameModel.Player.Inventory.HotBar[i].ItemCount > 0)
                 {
-                    if (gameModel.Player.Inventory.HotBar[i].Item == tileType)
+                    if (gameModel.Player.Inventory.HotBar[i].Item.ItemType == ItemType.Blocks)
                     {
-                        gameModel.Player.Inventory.HotBar[i].ItemCount++;
-                        found = true;
-                        break;
+                        BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
+                        if (block.TileType == tileType)
+                        {
+                            gameModel.Player.Inventory.HotBar[i].ItemCount++;
+                            found = true;
+                            break;
+                        }
                     }
                 }
                 else if (firstZero == -1)
@@ -43,7 +49,8 @@ namespace Assets.Scripts.Services
 
             if (!found && firstZero != -1)
             {
-                gameModel.Player.Inventory.HotBar[firstZero].Item = tileType;
+                BlockItemModel block = new BlockItemModel(tileType);
+                gameModel.Player.Inventory.HotBar[firstZero].Item = block;
                 gameModel.Player.Inventory.HotBar[firstZero].ItemCount = 1;
             }
         }
