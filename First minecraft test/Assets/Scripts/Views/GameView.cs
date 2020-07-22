@@ -91,9 +91,9 @@ public class GameView : MonoBehaviour
     private void UpdateHotBar()
     {
         GameModel gameModel = gameController.GetGameModel();
-        for (int i = 0; i < gameModel.Inventory.HotBar.Length; i++)
+        for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
         {
-            if (gameModel.Inventory.HotBar[i].ItemCount <= 0)
+            if (gameModel.Player.Inventory.HotBar[i].ItemCount <= 0)
             {
                 InvetorySlotsGameObjects[i].SetActive(false);
                 InventoryCountGameObjects[i].SetActive(false);
@@ -103,11 +103,11 @@ public class GameView : MonoBehaviour
                 InvetorySlotsGameObjects[i].SetActive(true);
                 InventoryCountGameObjects[i].SetActive(true);
 
-                Vector2 material = MaterialsSides[(int)gameModel.Inventory.HotBar[i].Item, 5];
+                Vector2 material = MaterialsSides[(int)gameModel.Player.Inventory.HotBar[i].Item, 5];
 
                 InventorySlotsImages[i].uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
 
-                InventoryItemCounts[i].text = gameModel.Inventory.HotBar[i].ItemCount.ToString();
+                InventoryItemCounts[i].text = gameModel.Player.Inventory.HotBar[i].ItemCount.ToString();
             }
         }
     }
@@ -272,39 +272,39 @@ public class GameView : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            gameModel.Inventory.SelectedBlock = 0;
+            gameModel.Player.Inventory.SelectedBlock = 0;
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            gameModel.Inventory.SelectedBlock = 1;
+            gameModel.Player.Inventory.SelectedBlock = 1;
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            gameModel.Inventory.SelectedBlock = 2;
+            gameModel.Player.Inventory.SelectedBlock = 2;
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            gameModel.Inventory.SelectedBlock = 3;
+            gameModel.Player.Inventory.SelectedBlock = 3;
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            gameModel.Inventory.SelectedBlock = 4;
+            gameModel.Player.Inventory.SelectedBlock = 4;
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            gameModel.Inventory.SelectedBlock = 5;
+            gameModel.Player.Inventory.SelectedBlock = 5;
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            gameModel.Inventory.SelectedBlock = 6;
+            gameModel.Player.Inventory.SelectedBlock = 6;
         }
         if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            gameModel.Inventory.SelectedBlock = 7;
+            gameModel.Player.Inventory.SelectedBlock = 7;
         }
         if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            gameModel.Inventory.SelectedBlock = 8;
+            gameModel.Player.Inventory.SelectedBlock = 8;
         }
     }
 

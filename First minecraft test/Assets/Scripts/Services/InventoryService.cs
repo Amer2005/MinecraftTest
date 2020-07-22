@@ -11,12 +11,12 @@ namespace Assets.Scripts.Services
     {
         public InventorySlotModel GetBlockFromSelectedSlot(GameModel gameModel)
         {
-            return GetBlockFromSlot(gameModel.Inventory.SelectedBlock, gameModel);
+            return GetBlockFromSlot(gameModel.Player.Inventory.SelectedBlock, gameModel);
         }
 
         public InventorySlotModel GetBlockFromSlot(int slotNumber, GameModel gameModel)
         {
-            return gameModel.Inventory.HotBar[slotNumber];
+            return gameModel.Player.Inventory.HotBar[slotNumber];
         }
 
         public void AddItemToInventory(TileType tileType, GameModel gameModel)
@@ -24,13 +24,13 @@ namespace Assets.Scripts.Services
             bool found = false;
             int firstZero = -1;
 
-            for (int i = 0; i < gameModel.Inventory.HotBarSize; i++)
+            for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
             {
-                if (gameModel.Inventory.HotBar[i].ItemCount > 0)
+                if (gameModel.Player.Inventory.HotBar[i].ItemCount > 0)
                 {
-                    if (gameModel.Inventory.HotBar[i].Item == tileType)
+                    if (gameModel.Player.Inventory.HotBar[i].Item == tileType)
                     {
-                        gameModel.Inventory.HotBar[i].ItemCount++;
+                        gameModel.Player.Inventory.HotBar[i].ItemCount++;
                         found = true;
                         break;
                     }
@@ -43,8 +43,8 @@ namespace Assets.Scripts.Services
 
             if (!found && firstZero != -1)
             {
-                gameModel.Inventory.HotBar[firstZero].Item = tileType;
-                gameModel.Inventory.HotBar[firstZero].ItemCount = 1;
+                gameModel.Player.Inventory.HotBar[firstZero].Item = tileType;
+                gameModel.Player.Inventory.HotBar[firstZero].ItemCount = 1;
             }
         }
     }

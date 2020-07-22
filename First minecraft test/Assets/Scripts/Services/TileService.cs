@@ -69,7 +69,7 @@ namespace Assets.Scripts.Services
                 if (slot.ItemCount > 0)
                 {
                     gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), slot.Item);
-                    gameModel.Inventory.HotBar[gameModel.Inventory.SelectedBlock].ItemCount--;
+                    gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
                 }
             }
         }

@@ -8,15 +8,13 @@ namespace Assets.Scripts.Models
 {
     public class InventoryModel
     {
-        public int HotBarSize { get; }
         public InventorySlotModel[] HotBar { get; set; }
 
         public int SelectedBlock { get; set; }
 
-        public InventoryModel(int hotBarSize)
+        public InventoryModel()
         {
-            HotBarSize = hotBarSize;
-            HotBar = new InventorySlotModel[hotBarSize];
+            HotBar = new InventorySlotModel[9];
 
             for (int i = 0; i < HotBar.Length; i++)
             {

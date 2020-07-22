@@ -9,6 +9,6 @@ namespace Assets.Scripts.Models
     public class GameModel
     {
         public TileModel[,,] Tiles { get; set; }
-        public InventoryModel Inventory { get; set; }
+        public PlayerModel Player { get; set; }
     }
 }

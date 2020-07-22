@@ -32,7 +32,7 @@ namespace Assets.Scripts.Controllers
             if(gameModel == null)
             {
                 gameModel = new GameModel();
-                gameModel.Inventory = new InventoryModel(9);
+                gameModel.Player = new PlayerModel();
                 gameModel.Tiles = tileService.GenerateTileMap(worldWidth, worldHeight, worldLenght);
             }
 
