@@ -74,7 +74,10 @@ namespace Assets.Scripts.Services
                     {
                         BlockItemModel block = (BlockItemModel)slot.Item;
                         gameModel.Tiles[x, y, z] = tileFactory.CreateTile(new Point(x, y, z), block.TileType);
-                        gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
+                        if (gameModel.Player.Gamemode == Gamemodes.Survival)
+                        {
+                            gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
+                        }
                     }
                 }
             }
@@ -96,7 +99,10 @@ namespace Assets.Scripts.Services
                 {
                     TileType tileType = gameModel.Tiles[x, y, z].TileType;
 
-                    inventoryService.AddItemToInventory(tileType, gameModel);
+                    if (gameModel.Player.Gamemode == Gamemodes.Survival)
+                    {
+                        inventoryService.AddItemToInventory(tileType, gameModel);
+                    }
 
                     gameModel.Tiles[x, y, z] = null;
                 }

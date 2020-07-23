@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assets.Scripts.Enums;
 
 namespace Assets.Scripts.Controllers
 {
@@ -32,7 +33,7 @@ namespace Assets.Scripts.Controllers
             if(gameModel == null)
             {
                 gameModel = new GameModel();
-                gameModel.Player = new PlayerModel();
+                gameModel.Player = new PlayerModel(Gamemodes.Creative);
                 gameModel.Tiles = tileService.GenerateTileMap(worldWidth, worldHeight, worldLenght);
             }
 

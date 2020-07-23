@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Assets.Scripts.Enums;
+using Assets.Scripts.Models.InventoryModels;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,9 +12,25 @@ namespace Assets.Scripts.Models
     {
         public InventoryModel Inventory { get; set; }
 
-        public PlayerModel()
+        public Gamemodes Gamemode { get; set; }
+
+        public PlayerModel(Gamemodes gamemode)
         {
             Inventory = new InventoryModel();
+            Gamemode = gamemode;
+
+            if(Gamemode == Gamemodes.Creative)
+            {
+                Inventory.HotBar[0].Item = new BlockItemModel(TileType.DefaultTile);
+                Inventory.HotBar[1].Item = new BlockItemModel(TileType.DirtTile);
+                Inventory.HotBar[2].Item = new BlockItemModel(TileType.GrassTile);
+                Inventory.HotBar[3].Item = new BlockItemModel(TileType.LogTile);
+
+                for (int i = 0; i < 4; i++)
+                {
+                    Inventory.HotBar[i].ItemCount = 1;
+                }
+            }
         }
     }
 }

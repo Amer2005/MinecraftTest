@@ -20,6 +20,8 @@ namespace Assets.Scripts.Factories
                     return new DirtTile(point);
                 case TileType.GrassTile:
                     return new GrassTile(point);
+                case TileType.LogTile:
+                    return new LogTile(point);
                 default:
                     throw new Exception("Tile not found");
             }
