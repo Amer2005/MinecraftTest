@@ -6,5 +6,6 @@ public enum TileType
     DefaultTile = 0,
     DirtTile = 1,
     GrassTile = 2,
-    LogTile = 3
+    LogTile = 3,
+    LeafTile = 4
 }

@@ -25,8 +25,9 @@ namespace Assets.Scripts.Models
                 Inventory.HotBar[1].Item = new BlockItemModel(TileType.DirtTile);
                 Inventory.HotBar[2].Item = new BlockItemModel(TileType.GrassTile);
                 Inventory.HotBar[3].Item = new BlockItemModel(TileType.LogTile);
+                Inventory.HotBar[4].Item = new BlockItemModel(TileType.LeafTile);
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < 5; i++)
                 {
                     Inventory.HotBar[i].ItemCount = 1;
                 }

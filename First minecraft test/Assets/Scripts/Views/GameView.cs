@@ -34,11 +34,14 @@ public class GameView : MonoBehaviour
     private RawImage[] InventorySlotsImages;
     private GameObject[] InventoryCountGameObjects;
     private Text[] InventoryItemCounts;
+    private GameObject[] InventorySlotSelected;
     private void Awake()
     {
         MaterialsSides = new Vector2[Enum.GetNames(typeof(TileType)).Length, 6];
 
         playerService = new PlayerService();
+
+        InventorySlotSelected = GameObject.FindGameObjectsWithTag("ItemSelected");
 
         InvetorySlotsGameObjects = GameObject.FindGameObjectsWithTag("InventorySlots");
 
@@ -97,6 +100,8 @@ public class GameView : MonoBehaviour
         GameModel gameModel = gameController.GetGameModel();
         for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
         {
+            InventorySlotSelected[i].SetActive(false);
+
             if (gameModel.Player.Inventory.HotBar[i].ItemCount <= 0)
             {
                 InvetorySlotsGameObjects[i].SetActive(false);
@@ -116,6 +121,8 @@ public class GameView : MonoBehaviour
                 InventoryItemCounts[i].text = gameModel.Player.Inventory.HotBar[i].ItemCount.ToString();
             }
         }
+
+        InventorySlotSelected[gameModel.Player.Inventory.SelectedBlock].SetActive(true);
     }
     
     private void Start()
@@ -130,7 +137,13 @@ public class GameView : MonoBehaviour
         Inputs();
     }
 
-    public void Inputs()
+    private void ChangeSelectedItem(int number, GameModel gameModel)
+    {
+        gameModel.Player.Inventory.SelectedBlock = number;
+        UpdateHotBar();
+    }
+
+    private void Inputs()
     {
         GameModel gameModel = gameController.GetGameModel();
 
@@ -253,7 +266,7 @@ public class GameView : MonoBehaviour
 
                 playerService.LeftClick((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
-                if((int)blockPos.x % (chunkSize - 1) == 0)
+                if((int)(blockPos.x + 1) % chunkSize == 0)
                 {
                     UpdateChunk((int)blockPos.x / chunkSize + 1, (int)blockPos.z / chunkSize, gameController.GetGameModel());
                 }
@@ -261,7 +274,7 @@ public class GameView : MonoBehaviour
                 {
                     UpdateChunk((int)blockPos.x / chunkSize - 1, (int)blockPos.z / chunkSize, gameController.GetGameModel());
                 }
-                if ((int)blockPos.z % (chunkSize - 1) == 0)
+                if (((int)blockPos.z + 1) % chunkSize == 0)
                 {
                     UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize + 1, gameController.GetGameModel());
                 }
@@ -278,39 +291,53 @@ public class GameView : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            gameModel.Player.Inventory.SelectedBlock = 0;
+            ChangeSelectedItem(0, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            gameModel.Player.Inventory.SelectedBlock = 1;
+            ChangeSelectedItem(1, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            gameModel.Player.Inventory.SelectedBlock = 2;
+            ChangeSelectedItem(2, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            gameModel.Player.Inventory.SelectedBlock = 3;
+            ChangeSelectedItem(3, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha5))
         {
-            gameModel.Player.Inventory.SelectedBlock = 4;
+            ChangeSelectedItem(4, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha6))
         {
-            gameModel.Player.Inventory.SelectedBlock = 5;
+            ChangeSelectedItem(5, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha7))
         {
-            gameModel.Player.Inventory.SelectedBlock = 6;
+            ChangeSelectedItem(6, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha8))
         {
-            gameModel.Player.Inventory.SelectedBlock = 7;
+            ChangeSelectedItem(7, gameModel);
         }
         if (Input.GetKeyDown(KeyCode.Alpha9))
         {
-            gameModel.Player.Inventory.SelectedBlock = 8;
+            ChangeSelectedItem(8, gameModel);
+        }
+
+        if(Input.GetAxis("Mouse ScrollWheel") != 0)
+        {
+            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            {
+                gameModel.Player.Inventory.SelectedBlock++;
+            }
+            else
+            {
+                gameModel.Player.Inventory.SelectedBlock--;
+            }
+
+            UpdateHotBar(); 
         }
     }
 
