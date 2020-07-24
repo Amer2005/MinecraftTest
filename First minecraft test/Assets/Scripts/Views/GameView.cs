@@ -32,12 +32,19 @@ public class GameView : MonoBehaviour
     private const float pixelSize = 16;
     private PlayerService playerService;
 
-    private GameObject[] InvetorySlotsGameObjects;
-    private RawImage[] InventorySlotsImages;
-    private GameObject[] InventoryCountGameObjects;
-    private Text[] InventoryItemCounts;
-    private GameObject[] InventorySlotSelected;
+    private GameObject[] hotbarSlotsGameObjects;
+    private RawImage[] hotbarSlotsImages;
+    private GameObject[] hotbarCountGameObjects;
+    private Text[] hotbarItemCounts;
+    private GameObject[] hotbarSlotSelected;
+
     private BuildingService buildingService;
+
+    private GameObject inventory;
+    private RawImage[] inventoryImages;
+    private GameObject[] invenvtoryImagesGameObjects;
+    private GameObject[] inventoryItemCountsGameObjects;
+    private Text[] inventoryItemCounts;
     private void Awake()
     {
         MaterialsSides = new Vector2[Enum.GetNames(typeof(BlockType)).Length, 6];
@@ -46,24 +53,46 @@ public class GameView : MonoBehaviour
 
         buildingService = new BuildingService();
 
-        InventorySlotSelected = GameObject.FindGameObjectsWithTag("ItemSelected");
+        invenvtoryImagesGameObjects = GameObject.FindGameObjectsWithTag("MainInventorySlots");
 
-        InvetorySlotsGameObjects = GameObject.FindGameObjectsWithTag("InventorySlots");
+        inventoryImages = new RawImage[invenvtoryImagesGameObjects.Length];
 
-        InventorySlotsImages = new RawImage[InvetorySlotsGameObjects.Length];
-
-        InventoryCountGameObjects = GameObject.FindGameObjectsWithTag("ItemCount");
-
-        InventoryItemCounts = new Text[InventoryCountGameObjects.Length];
-
-        for (int i = 0; i < InvetorySlotsGameObjects.Length; i++)
+        for (int i = 0; i < invenvtoryImagesGameObjects.Length; i++)
         {
-            InventorySlotsImages[i] = InvetorySlotsGameObjects[i].GetComponent<RawImage>();
+            inventoryImages[i] = invenvtoryImagesGameObjects[i].GetComponent<RawImage>();
         }
 
-        for (int i = 0; i < InventoryCountGameObjects.Length; i++)
+        inventoryItemCountsGameObjects = GameObject.FindGameObjectsWithTag("MainInventoryCount");
+
+        inventoryItemCounts = new Text[inventoryItemCountsGameObjects.Length];
+
+        for (int i = 0; i < inventoryItemCountsGameObjects.Length; i++)
         {
-            InventoryItemCounts[i] = InventoryCountGameObjects[i].GetComponent<Text>();
+            inventoryItemCounts[i] = inventoryItemCountsGameObjects[i].GetComponent<Text>();
+        }
+
+        inventory = GameObject.FindGameObjectWithTag("Inventory");
+
+        inventory.SetActive(false);
+
+        hotbarSlotSelected = GameObject.FindGameObjectsWithTag("ItemSelected");
+
+        hotbarSlotsGameObjects = GameObject.FindGameObjectsWithTag("InventorySlots");
+
+        hotbarSlotsImages = new RawImage[hotbarSlotsGameObjects.Length];
+
+        hotbarCountGameObjects = GameObject.FindGameObjectsWithTag("ItemCount");
+
+        hotbarItemCounts = new Text[hotbarCountGameObjects.Length];
+
+        for (int i = 0; i < hotbarSlotsGameObjects.Length; i++)
+        {
+            hotbarSlotsImages[i] = hotbarSlotsGameObjects[i].GetComponent<RawImage>();
+        }
+
+        for (int i = 0; i < hotbarCountGameObjects.Length; i++)
+        {
+            hotbarItemCounts[i] = hotbarCountGameObjects[i].GetComponent<Text>();
         }
 
         perlinNoiseService = new PerlinNoiseService();
@@ -100,36 +129,63 @@ public class GameView : MonoBehaviour
         //Materials = new Material[Enum.GetNames(typeof(BlockType)).Length];
     }
 
+    private void SetRawImage(RawImage image, ItemModel item)
+    {
+        BlockItemModel block = (BlockItemModel)item;
+
+        Vector2 material = MaterialsSides[(int)block.BlockType, 5];
+
+        image.uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
+    }
+
     private void UpdateHotBar()
     {
         GameModel gameModel = gameController.GetGameModel();
         for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
         {
-            InventorySlotSelected[i].SetActive(false);
+            hotbarSlotSelected[i].SetActive(false);
 
             if (gameModel.Player.Inventory.HotBar[i].ItemCount <= 0)
             {
-                InvetorySlotsGameObjects[i].SetActive(false);
-                InventoryCountGameObjects[i].SetActive(false);
+                hotbarSlotsGameObjects[i].SetActive(false);
+                hotbarCountGameObjects[i].SetActive(false);
             }
             else
             {
-                InvetorySlotsGameObjects[i].SetActive(true);
-                InventoryCountGameObjects[i].SetActive(true);
+                hotbarSlotsGameObjects[i].SetActive(true);
+                hotbarCountGameObjects[i].SetActive(true);
 
-                BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
+                SetRawImage(hotbarSlotsImages[i], gameModel.Player.Inventory.HotBar[i].Item);
 
-                Vector2 material = MaterialsSides[(int)block.BlockType, 5];
-
-                InventorySlotsImages[i].uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
-
-                InventoryItemCounts[i].text = gameModel.Player.Inventory.HotBar[i].ItemCount.ToString();
+                hotbarItemCounts[i].text = gameModel.Player.Inventory.HotBar[i].ItemCount.ToString();
             }
         }
 
-        InventorySlotSelected[gameModel.Player.Inventory.SelectedBlock].SetActive(true);
+        hotbarSlotSelected[gameModel.Player.Inventory.SelectedBlock].SetActive(true);
     }
     
+    private void UpdateInventory()
+    {
+        GameModel gameModel = gameController.GetGameModel();
+
+        for (int i = 0; i < inventoryImages.Length; i++)
+        {
+            if (gameModel.Player.Inventory.MainInventory[i / 9, i % 9].ItemCount > 0)
+            {
+                invenvtoryImagesGameObjects[i].SetActive(true);
+                inventoryItemCountsGameObjects[i].SetActive(true);
+
+                SetRawImage(inventoryImages[i], gameModel.Player.Inventory.MainInventory[i / 9, i % 9].Item);
+                inventoryItemCounts[i].text = gameModel.Player.Inventory.MainInventory[i / 9, i % 9].ItemCount.ToString();
+            }
+            else
+            {
+                invenvtoryImagesGameObjects[i].SetActive(false);
+                inventoryItemCountsGameObjects[i].SetActive(false);
+            }
+        }
+    }
+
     private void Start()
     {
         RenderBlocks();
@@ -152,7 +208,16 @@ public class GameView : MonoBehaviour
     {
         GameModel gameModel = gameController.GetGameModel();
 
-        if(Input.GetKey(KeyCode.P))
+        if(Input.GetKeyDown(KeyCode.E))
+        {
+            if(!inventory.activeSelf)
+            {
+                UpdateInventory();
+            }
+            inventory.SetActive(!inventory.activeSelf);
+        }
+
+        if(Input.GetKeyDown(KeyCode.P))
         {
             PrintBuilding();
         }

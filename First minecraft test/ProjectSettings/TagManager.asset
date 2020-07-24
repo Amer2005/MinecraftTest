@@ -8,6 +8,9 @@ TagManager:
   - InventorySlots
   - ItemCount
   - ItemSelected
+  - Inventory
+  - MainInventorySlots
+  - MainInventoryCount
   layers:
   - Default
   - TransparentFX
