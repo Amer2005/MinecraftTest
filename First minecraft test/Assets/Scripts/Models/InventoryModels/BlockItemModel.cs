@@ -9,11 +9,11 @@ namespace Assets.Scripts.Models.InventoryModels
 {
     public class BlockItemModel : ItemModel
     {
-        public TileType TileType { get; set; }
+        public BlockType BlockType { get; set; }
 
-        public BlockItemModel(TileType tileType) : base(ItemType.Blocks)
+        public BlockItemModel(BlockType blockType) : base(ItemType.Blocks)
         {
-            TileType = tileType;
+            BlockType = blockType;
         }
     }
 }

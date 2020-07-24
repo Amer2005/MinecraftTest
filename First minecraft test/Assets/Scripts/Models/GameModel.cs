@@ -8,7 +8,7 @@ namespace Assets.Scripts.Models
 {
     public class GameModel
     {
-        public TileModel[,,] Tiles { get; set; }
+        public BlockModel[,,] Blocks { get; set; }
         public PlayerModel Player { get; set; }
     }
 }

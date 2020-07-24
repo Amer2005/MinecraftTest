@@ -21,7 +21,7 @@ namespace Assets.Scripts.Services
             return gameModel.Player.Inventory.HotBar[slotNumber];
         }
 
-        public void AddItemToInventory(TileType tileType, GameModel gameModel)
+        public void AddItemToInventory(BlockType BlockType, GameModel gameModel)
         {
             bool found = false;
             int firstZero = -1;
@@ -33,7 +33,7 @@ namespace Assets.Scripts.Services
                     if (gameModel.Player.Inventory.HotBar[i].Item.ItemType == ItemType.Blocks)
                     {
                         BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
-                        if (block.TileType == tileType)
+                        if (block.BlockType == BlockType)
                         {
                             gameModel.Player.Inventory.HotBar[i].ItemCount++;
                             found = true;
@@ -49,7 +49,7 @@ namespace Assets.Scripts.Services
 
             if (!found && firstZero != -1)
             {
-                BlockItemModel block = new BlockItemModel(tileType);
+                BlockItemModel block = new BlockItemModel(BlockType);
                 gameModel.Player.Inventory.HotBar[firstZero].Item = block;
                 gameModel.Player.Inventory.HotBar[firstZero].ItemCount = 1;
             }

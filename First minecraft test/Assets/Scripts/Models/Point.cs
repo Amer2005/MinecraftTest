@@ -18,5 +18,10 @@ namespace Assets.Scripts.Models
             Y = y;
             Z = z;
         }
+
+        public static Point operator +(Point a, Point b)
+        {
+            return new Point(b.X + a.X, a.Y + b.Y, a.Z + b.Z);
+        }
     }
 }

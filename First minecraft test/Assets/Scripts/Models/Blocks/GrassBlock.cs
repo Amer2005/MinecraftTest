@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.Scripts.Models.Tiles
+namespace Assets.Scripts.Models.Blocks
 {
-    public class GrassTile : TileModel
+    public class GrassBlock : BlockModel
     {
-        public GrassTile(Point point) : base(point, TileType.GrassTile)
+        public GrassBlock(Point point) : base(point, BlockType.GrassBlock)
         {
 
         }

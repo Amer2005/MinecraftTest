@@ -9,21 +9,21 @@ namespace Assets.Scripts.Services
 {
     public class PlayerService
     {
-        private TileService tileService;
+        private BlockService BlockService;
 
         public PlayerService()
         {
-            tileService = new TileService();
+            BlockService = new BlockService();
         }
 
         public void LeftClick(int x, int y, int z, GameModel gameModel)
         {
-            tileService.BreakBlock(x, y, z, gameModel);
+            BlockService.BreakBlock(x, y, z, gameModel);
         }
 
         public void RightClick(int x, int y, int z, GameModel gameModel)
         {
-            tileService.PlaceBlockFromSlectedSlot(x, y, z, gameModel); 
+            BlockService.PlaceBlockFromSlectedSlot(x, y, z, gameModel); 
         }
     }
 }

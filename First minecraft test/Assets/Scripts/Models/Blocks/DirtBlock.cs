@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Assets.Scripts.Models.Tiles
+namespace Assets.Scripts.Models.Blocks
 {
-    public class LogTile : TileModel
+    public class DirtBlock : BlockModel
     {
-        public LogTile(Point point) : base(point, TileType.LogTile)
+        public DirtBlock(Point point) : base(point, BlockType.DirtBlock)
         {
 
         }

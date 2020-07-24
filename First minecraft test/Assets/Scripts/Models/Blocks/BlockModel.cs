@@ -4,15 +4,15 @@ using Assets.Scripts.Models.InventoryModels;
 using System.Collections;
 using System.Collections.Generic;
 
-public class TileModel
+public class BlockModel
 {
-    public TileType TileType { get; set; }
+    public BlockType BlockType { get; set; }
 
     public Point Point { get; set; }
 
-    public TileModel(Point point, TileType tileType)
+    public BlockModel(Point point, BlockType blockType)
     {
         Point = point;
-        TileType = tileType;
+        BlockType = blockType;
     }
 }

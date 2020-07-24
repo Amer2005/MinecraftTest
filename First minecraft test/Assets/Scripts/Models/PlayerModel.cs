@@ -21,11 +21,11 @@ namespace Assets.Scripts.Models
 
             if(Gamemode == Gamemodes.Creative)
             {
-                Inventory.HotBar[0].Item = new BlockItemModel(TileType.DefaultTile);
-                Inventory.HotBar[1].Item = new BlockItemModel(TileType.DirtTile);
-                Inventory.HotBar[2].Item = new BlockItemModel(TileType.GrassTile);
-                Inventory.HotBar[3].Item = new BlockItemModel(TileType.LogTile);
-                Inventory.HotBar[4].Item = new BlockItemModel(TileType.LeafTile);
+                Inventory.HotBar[0].Item = new BlockItemModel(BlockType.DefaultBlock);
+                Inventory.HotBar[1].Item = new BlockItemModel(BlockType.DirtBlock);
+                Inventory.HotBar[2].Item = new BlockItemModel(BlockType.GrassBlock);
+                Inventory.HotBar[3].Item = new BlockItemModel(BlockType.LogBlock);
+                Inventory.HotBar[4].Item = new BlockItemModel(BlockType.LeafBlock);
 
                 for (int i = 0; i < 5; i++)
                 {

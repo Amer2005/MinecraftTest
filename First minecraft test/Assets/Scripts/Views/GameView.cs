@@ -1,20 +1,21 @@
 ﻿using Assets.Scripts.Controllers;
 using Assets.Scripts.Models;
 using Assets.Scripts.Models.InventoryModels;
-using Assets.Scripts.Models.Tiles;
+using Assets.Scripts.Models.Blocks;
 using Assets.Scripts.Services;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Assets.Scripts.Models.Buildings;
 
 public class GameView : MonoBehaviour
 {
     private GameController gameController;
     private GameObject[,] gameChunks;
     private int chunkSize = 10;
-    private const string pathToTiles = "Prefabs/Tiles";
+    private const string pathToBlocks = "Prefabs/Blocks";
     public GameObject DefaultChunk;
     private Camera playerCamera;
     public Vector2[] MaterialsSideTop;
@@ -26,7 +27,7 @@ public class GameView : MonoBehaviour
     private Vector2[,] MaterialsSides;
     private PerlinNoiseService perlinNoiseService;
     private InventoryService inventoryService;
-    private TileService tileService;
+    private BlockService BlockService;
     private const float pixelSize = 16;
     private PlayerService playerService;
 
@@ -35,11 +36,14 @@ public class GameView : MonoBehaviour
     private GameObject[] InventoryCountGameObjects;
     private Text[] InventoryItemCounts;
     private GameObject[] InventorySlotSelected;
+    private BuildingService buildingService;
     private void Awake()
     {
-        MaterialsSides = new Vector2[Enum.GetNames(typeof(TileType)).Length, 6];
+        MaterialsSides = new Vector2[Enum.GetNames(typeof(BlockType)).Length, 6];
 
         playerService = new PlayerService();
+
+        buildingService = new BuildingService();
 
         InventorySlotSelected = GameObject.FindGameObjectsWithTag("ItemSelected");
 
@@ -65,7 +69,7 @@ public class GameView : MonoBehaviour
 
         inventoryService = new InventoryService();
 
-        tileService = new TileService();
+        BlockService = new BlockService();
 
         for (int i = 0;i < MaterialsSides.GetLength(0);i++)
         {
@@ -90,9 +94,9 @@ public class GameView : MonoBehaviour
         }
 
         gameController = new GameController(100, 100, 100);
-        gameChunks = new GameObject[gameController.GetGameModel().Tiles.GetLength(0) / chunkSize, gameController.GetGameModel().Tiles.GetLength(2) / chunkSize];
+        gameChunks = new GameObject[gameController.GetGameModel().Blocks.GetLength(0) / chunkSize, gameController.GetGameModel().Blocks.GetLength(2) / chunkSize];
         playerCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
-        //Materials = new Material[Enum.GetNames(typeof(TileType)).Length];
+        //Materials = new Material[Enum.GetNames(typeof(BlockType)).Length];
     }
 
     private void UpdateHotBar()
@@ -114,7 +118,7 @@ public class GameView : MonoBehaviour
 
                 BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
 
-                Vector2 material = MaterialsSides[(int)block.TileType, 5];
+                Vector2 material = MaterialsSides[(int)block.BlockType, 5];
 
                 InventorySlotsImages[i].uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
 
@@ -127,7 +131,7 @@ public class GameView : MonoBehaviour
     
     private void Start()
     {
-        RenderTiles();
+        RenderBlocks();
         UpdateHotBar();
     }
 
@@ -160,7 +164,7 @@ public class GameView : MonoBehaviour
                     blockPos.x = (float)Math.Floor(blockPos.x);
                     blockPos.z = (float)Math.Floor(blockPos.z);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                         //blockPos.y--;
@@ -177,7 +181,7 @@ public class GameView : MonoBehaviour
                     blockPos.y = (float)Math.Floor(blockPos.y);
                     blockPos.z = (float)Math.Floor(blockPos.z);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                         //blockPos.x--;
@@ -193,7 +197,7 @@ public class GameView : MonoBehaviour
                     blockPos.y = (float)Math.Floor(blockPos.y);
                     blockPos.x = (float)Math.Floor(blockPos.x);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                     }
@@ -228,7 +232,7 @@ public class GameView : MonoBehaviour
                     blockPos.x = (float) Math.Floor(blockPos.x);
                     blockPos.z = (float)Math.Floor(blockPos.z);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                         blockPos.y--;
@@ -241,7 +245,7 @@ public class GameView : MonoBehaviour
                     blockPos.y = (float)Math.Floor(blockPos.y);
                     blockPos.z = (float)Math.Floor(blockPos.z);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                         blockPos.x--;
@@ -253,7 +257,7 @@ public class GameView : MonoBehaviour
                     blockPos.y = (float)Math.Floor(blockPos.y);
                     blockPos.x = (float)Math.Floor(blockPos.x);
 
-                    if (gameModel.Tiles[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
+                    if (gameModel.Blocks[(int)blockPos.x, (int)blockPos.y, (int)blockPos.z] == null)
                     {
                         //HitUp
                         blockPos.z--;
@@ -328,7 +332,7 @@ public class GameView : MonoBehaviour
 
         if(Input.GetAxis("Mouse ScrollWheel") != 0)
         {
-            if (Input.GetAxis("Mouse ScrollWheel") > 0)
+            if (Input.GetAxis("Mouse ScrollWheel") < 0)
             {
                 gameModel.Player.Inventory.SelectedBlock++;
             }
@@ -341,7 +345,7 @@ public class GameView : MonoBehaviour
         }
     }
 
-    private void RenderTiles()
+    private void RenderBlocks()
     {
         GameModel gameModel = gameController.GetGameModel();
 
@@ -436,14 +440,14 @@ public class GameView : MonoBehaviour
         {
             for (int z = chunkZ * chunkSize; z < chunkZ * chunkSize + chunkSize; z++)
             {
-                for (int y = 0; y < gameModel.Tiles.GetLength(1); y++)
+                for (int y = 0; y < gameModel.Blocks.GetLength(1); y++)
                 {
-                    if (gameModel.Tiles[x, y, z] != null)
+                    if (gameModel.Blocks[x, y, z] != null)
                     {
                         int[] indexes;
-                        float tilePerc = 1 / pixelSize;
-                        float tileX;
-                        float tileY;
+                        float BlockPerc = 1 / pixelSize;
+                        float BlockX;
+                        float BlockY;
 
                         float umin;
                         float umax;
@@ -451,23 +455,23 @@ public class GameView : MonoBehaviour
                         float vmax;
 
                         //TOP
-                        if ((y < gameModel.Tiles.GetLength(1) - 1 && gameModel.Tiles[x, y + 1, z] == null) || y == gameModel.Tiles.GetLength(1) - 1)
+                        if ((y < gameModel.Blocks.GetLength(1) - 1 && gameModel.Blocks[x, y + 1, z] == null) || y == gameModel.Blocks.GetLength(1) - 1)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                                 new Vector3[] { new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1), new Vector3(x, y + 1, z + 1) },
                                 new int[] { 0, 3, 1, 1, 3, 2 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 0];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 0];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
-                            //tileX = Vector2[]
+                            //BlockX = Vector2[]
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
@@ -476,21 +480,21 @@ public class GameView : MonoBehaviour
                         }
 
                         //BOTTOM
-                        if ((y > 0 && gameModel.Tiles[x, y - 1, z] == null) || y == 0)
+                        if ((y > 0 && gameModel.Blocks[x, y - 1, z] == null) || y == 0)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x, y, z + 1) },
                             new int[] { 0, 1, 3, 2, 3, 1 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 1];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 1];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
@@ -498,21 +502,21 @@ public class GameView : MonoBehaviour
                             uvs[indexes[3]] = new Vector2(umin, vmax);
                         }
                         //RIGHT
-                        if ((x < gameModel.Tiles.GetLength(0) - 1 && gameModel.Tiles[x + 1, y, z] == null) || x == gameModel.Tiles.GetLength(0) - 1)
+                        if ((x < gameModel.Blocks.GetLength(0) - 1 && gameModel.Blocks[x + 1, y, z] == null) || x == gameModel.Blocks.GetLength(0) - 1)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x + 1, y, z), new Vector3(x + 1, y, z + 1), new Vector3(x + 1, y + 1, z), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 2];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 2];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[2]] = new Vector2(umin, vmax);
@@ -526,21 +530,21 @@ public class GameView : MonoBehaviour
                             */
                         }
                         //LEFT
-                        if ((x > 0 && gameModel.Tiles[x - 1, y, z] == null) || x == 0)
+                        if ((x > 0 && gameModel.Blocks[x - 1, y, z] == null) || x == 0)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x, y, z + 1), new Vector3(x, y + 1, z), new Vector3(x, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 1, 3, 2 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 3];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 3];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[2]] = new Vector2(umin, vmax);
@@ -548,21 +552,21 @@ public class GameView : MonoBehaviour
                             uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                         //FRONT
-                        if ((z > 0 && gameModel.Tiles[x, y, z - 1] == null) || z == 0)
+                        if ((z > 0 && gameModel.Blocks[x, y, z - 1] == null) || z == 0)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z), new Vector3(x + 1, y, z), new Vector3(x, y + 1, z), new Vector3(x + 1, y + 1, z) },
                             new int[] { 0, 2, 1, 1, 2, 3 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 4];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 4];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
@@ -570,21 +574,21 @@ public class GameView : MonoBehaviour
                             uvs[indexes[3]] = new Vector2(umax, vmax);
                         }
                         //BACK
-                        if ((z < gameModel.Tiles.GetLength(2) - 1 && gameModel.Tiles[x, y, z + 1] == null) || z == gameModel.Tiles.GetLength(2) - 1)
+                        if ((z < gameModel.Blocks.GetLength(2) - 1 && gameModel.Blocks[x, y, z + 1] == null) || z == gameModel.Blocks.GetLength(2) - 1)
                         {
                             indexes = GenerateQuad(used, vectors, triangles, uvs,
                             new Vector3[] { new Vector3(x, y, z + 1), new Vector3(x + 1, y, z + 1), new Vector3(x, y + 1, z + 1), new Vector3(x + 1, y + 1, z + 1) },
                             new int[] { 1, 2, 0, 3, 2, 1 });
 
-                            Vector2 material = MaterialsSides[(int)gameModel.Tiles[x, y, z].TileType, 5];
+                            Vector2 material = MaterialsSides[(int)gameModel.Blocks[x, y, z].BlockType, 5];
 
-                            tileX = material.x;
-                            tileY = material.y;
+                            BlockX = material.x;
+                            BlockY = material.y;
 
-                            umin = tilePerc * tileX;
-                            umax = tilePerc * (tileX + 1);
-                            vmin = tilePerc * tileY;
-                            vmax = tilePerc * (tileY + 1);
+                            umin = BlockPerc * BlockX;
+                            umax = BlockPerc * (BlockX + 1);
+                            vmin = BlockPerc * BlockY;
+                            vmax = BlockPerc * (BlockY + 1);
 
                             uvs[indexes[0]] = new Vector2(umin, vmin);
                             uvs[indexes[1]] = new Vector2(umax, vmin);
