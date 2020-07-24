@@ -39,8 +39,8 @@ public class GameView : MonoBehaviour
     private GameObject[] hotbarSlotSelected;
 
     private BuildingService buildingService;
-
-    private GameObject inventory;
+    [HideInInspector]
+    public GameObject inventory;
     private RawImage[] inventoryImages;
     private GameObject[] invenvtoryImagesGameObjects;
     private GameObject[] inventoryItemCountsGameObjects;
@@ -126,6 +126,7 @@ public class GameView : MonoBehaviour
         gameController = new GameController(100, 100, 100);
         gameChunks = new GameObject[gameController.GetGameModel().Blocks.GetLength(0) / chunkSize, gameController.GetGameModel().Blocks.GetLength(2) / chunkSize];
         playerCamera = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
+        Cursor.lockState = CursorLockMode.Locked;
         //Materials = new Material[Enum.GetNames(typeof(BlockType)).Length];
     }
 
@@ -141,11 +142,11 @@ public class GameView : MonoBehaviour
     private void UpdateHotBar()
     {
         GameModel gameModel = gameController.GetGameModel();
-        for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
+        for (int i = 0; i < gameModel.Player.Inventory.MainInventory.GetLength(1); i++)
         {
             hotbarSlotSelected[i].SetActive(false);
 
-            if (gameModel.Player.Inventory.HotBar[i].ItemCount <= 0)
+            if (gameModel.Player.Inventory.MainInventory[3, i].ItemCount <= 0)
             {
                 hotbarSlotsGameObjects[i].SetActive(false);
                 hotbarCountGameObjects[i].SetActive(false);
@@ -155,9 +156,9 @@ public class GameView : MonoBehaviour
                 hotbarSlotsGameObjects[i].SetActive(true);
                 hotbarCountGameObjects[i].SetActive(true);
 
-                SetRawImage(hotbarSlotsImages[i], gameModel.Player.Inventory.HotBar[i].Item);
+                SetRawImage(hotbarSlotsImages[i], gameModel.Player.Inventory.MainInventory[3, i].Item);
 
-                hotbarItemCounts[i].text = gameModel.Player.Inventory.HotBar[i].ItemCount.ToString();
+                hotbarItemCounts[i].text = gameModel.Player.Inventory.MainInventory[3, i].ItemCount.ToString();
             }
         }
 
@@ -213,6 +214,11 @@ public class GameView : MonoBehaviour
             if(!inventory.activeSelf)
             {
                 UpdateInventory();
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
             }
             inventory.SetActive(!inventory.activeSelf);
         }

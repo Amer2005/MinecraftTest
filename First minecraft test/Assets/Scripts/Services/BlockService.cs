@@ -89,7 +89,7 @@ namespace Assets.Scripts.Services
                         gameModel.Blocks[x, y, z] = BlockFactory.CreateBlock(new Point(x, y, z), block.BlockType);
                         if (gameModel.Player.Gamemode == Gamemodes.Survival)
                         {
-                            gameModel.Player.Inventory.HotBar[gameModel.Player.Inventory.SelectedBlock].ItemCount--;
+                            gameModel.Player.Inventory.MainInventory[3, gameModel.Player.Inventory.SelectedBlock].ItemCount--;
                         }
                     }
                 }

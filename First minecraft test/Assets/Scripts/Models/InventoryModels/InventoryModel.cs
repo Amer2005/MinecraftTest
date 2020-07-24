@@ -9,7 +9,6 @@ namespace Assets.Scripts.Models
 {
     public class InventoryModel
     {
-        public InventorySlotModel[] HotBar { get; set; }
         public InventorySlotModel[,] MainInventory { get; set; }
 
         private int selectedBlock;
@@ -22,13 +21,13 @@ namespace Assets.Scripts.Models
             }
             set
             {
-                if(value > HotBar.Length - 1)
+                if(value > 8)
                 {
                     selectedBlock = 0;
                 }
                 else if (value < 0)
                 {
-                    selectedBlock = HotBar.Length - 1;
+                    selectedBlock = 8;
                 }
                 else
                 {
@@ -39,14 +38,7 @@ namespace Assets.Scripts.Models
 
         public InventoryModel()
         {
-            HotBar = new InventorySlotModel[9];
-
-            MainInventory = new InventorySlotModel[3,9];
-
-            for (int i = 0; i < HotBar.Length; i++)
-            {
-                HotBar[i] = new InventorySlotModel();
-            }
+            MainInventory = new InventorySlotModel[4,9];
 
             for (int i = 0; i < MainInventory.GetLength(0); i++)
             {

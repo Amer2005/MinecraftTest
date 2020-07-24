@@ -2083,6 +2083,7 @@ MonoBehaviour:
   - {x: 3, y: 15}
   - {x: 4, y: 14}
   - {x: 0, y: 0}
+  inventory: {fileID: 0}
 --- !u!4 &879508489
 Transform:
   m_ObjectHideFlags: 0
@@ -2392,6 +2393,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mouseSensitivity: 100
   PlayerBody: {fileID: 765164279}
+  GameView: {fileID: 879508487}
 --- !u!224 &980114921 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5162993683279351203, guid: 66b7a7a6ad10d2e499bd9c02024e3e78,

@@ -18,7 +18,7 @@ namespace Assets.Scripts.Services
 
         public InventorySlotModel GetBlockFromSlot(int slotNumber, GameModel gameModel)
         {
-            return gameModel.Player.Inventory.HotBar[slotNumber];
+            return gameModel.Player.Inventory.MainInventory[3, slotNumber];
         }
 
         public void AddItemToInventory(BlockType BlockType, GameModel gameModel)
@@ -26,16 +26,16 @@ namespace Assets.Scripts.Services
             bool found = false;
             int firstZero = -1;
 
-            for (int i = 0; i < gameModel.Player.Inventory.HotBar.Length; i++)
+            for (int i = 0; i < gameModel.Player.Inventory.MainInventory.GetLength(1); i++)
             {
-                if (gameModel.Player.Inventory.HotBar[i].ItemCount > 0)
+                if (gameModel.Player.Inventory.MainInventory[3, i].ItemCount > 0)
                 {
-                    if (gameModel.Player.Inventory.HotBar[i].Item.ItemType == ItemType.Blocks)
+                    if (gameModel.Player.Inventory.MainInventory[3, i].Item.ItemType == ItemType.Blocks)
                     {
-                        BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.HotBar[i].Item;
+                        BlockItemModel block = (BlockItemModel)gameModel.Player.Inventory.MainInventory[3, i].Item;
                         if (block.BlockType == BlockType)
                         {
-                            gameModel.Player.Inventory.HotBar[i].ItemCount++;
+                            gameModel.Player.Inventory.MainInventory[3, i].ItemCount++;
                             found = true;
                             break;
                         }
@@ -50,8 +50,8 @@ namespace Assets.Scripts.Services
             if (!found && firstZero != -1)
             {
                 BlockItemModel block = new BlockItemModel(BlockType);
-                gameModel.Player.Inventory.HotBar[firstZero].Item = block;
-                gameModel.Player.Inventory.HotBar[firstZero].ItemCount = 1;
+                gameModel.Player.Inventory.MainInventory[3, firstZero].Item = block;
+                gameModel.Player.Inventory.MainInventory[3, firstZero].ItemCount = 1;
             }
         }
     }
