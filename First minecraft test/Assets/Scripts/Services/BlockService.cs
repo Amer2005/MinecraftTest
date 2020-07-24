@@ -1,6 +1,7 @@
 ﻿using Assets.Scripts.Enums;
 using Assets.Scripts.Factories;
 using Assets.Scripts.Models;
+using Assets.Scripts.Models.Buildings;
 using Assets.Scripts.Models.InventoryModels;
 using System;
 using System.Collections.Generic;
@@ -16,20 +17,22 @@ namespace Assets.Scripts.Services
         private RandomService randomService;
         private PerlinNoiseService perlinNoise;
         private InventoryService inventoryService;
+        private BuildingService buildingService;
         public BlockService()
         {
             BlockFactory = new BlockFactory();
             randomService = new RandomService();
             perlinNoise = new PerlinNoiseService();
             inventoryService = new InventoryService();
+            buildingService = new BuildingService();
         }
 
         public BlockModel[,,] GenerateBlockMap(int width, int height, int lenght)
         {
-            BlockModel[,,] Blocks = new BlockModel[width, height, lenght];
+            BlockModel[,,] blocks = new BlockModel[width, height, lenght];
 
-            int minHeight = 4;
-            int maxHeight = 6;
+            int minHeight = 1;
+            int maxHeight = 10;
 
            // Blocks[0, 0, 0] = BlockFactory.CreateBlock(new Point(0, 0, 0), BlockType.DirtBlock);
 
@@ -37,28 +40,38 @@ namespace Assets.Scripts.Services
             {
                 for (int z = 0; z < lenght; z++)
                 {
-                    int h = calculateHeight(x, z, 3, Blocks);
+                    int h = calculateHeight(x, z, 3, blocks, minHeight, maxHeight);
 
-                    Blocks[x, h - 1, z] = BlockFactory.CreateBlock(new Point(x, (int)h - 1, z), BlockType.GrassBlock);
+                    h--;
 
-                    for (int y = 0;y < h - 1;y++)
+                    int rng = randomService.GenerateInt(1, 101);
+
+                    blocks[x, h, z] = BlockFactory.CreateBlock(new Point(x, h, z), BlockType.GrassBlock);
+
+                    if (rng <= 1)
                     {
-                        Blocks[x, y, z] = BlockFactory.CreateBlock(new Point(x, y, z), BlockType.DirtBlock);
+                        buildingService.PlaceBuilding(new Point(x, h + 1, z), new TreeBuilding(), blocks);
+                        //blocks[x, h, z] = BlockFactory.CreateBlock(new Point(x, h, z), BlockType.DirtBlock);
+                    }
+
+                    for (int y = 0;y < h;y++)
+                    {
+                        blocks[x, y, z] = BlockFactory.CreateBlock(new Point(x, y, z), BlockType.DirtBlock);
                     }
                 }
             }
 
-            return Blocks;
+            return blocks;
         }
 
-        private int calculateHeight(float x, float y, float scale, BlockModel[,,] Blocks)
+        private int calculateHeight(float x, float y, float scale, BlockModel[,,] Blocks, int minHeight, int maxHeight)
         {
             float xCord = (float)x / Blocks.GetLength(0) * scale;
             float yCord = (float)y / Blocks.GetLength(2) * scale;
 
             float sample = perlinNoise.perlinNoise(xCord, yCord);
 
-            float height = sample * (Blocks.GetLength(1) - 1); 
+            float height = sample * ((maxHeight - minHeight)) + minHeight; 
 
             return (int)Math.Round(height);
         }

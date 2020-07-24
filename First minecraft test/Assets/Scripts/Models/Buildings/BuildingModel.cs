@@ -13,8 +13,11 @@ namespace Assets.Scripts.Models
         public int Lenght { get; set; }
         public BlockModel[,,] BuildingBlocks { get; set; }
 
-        public BuildingModel(int width, int height, int lenght)
+        public Point StartPoint { get; set; }
+
+        public BuildingModel(int width, int height, int lenght, Point startPoint)
         {
+            StartPoint = startPoint;
             Width = width;
             Height = height;
             Lenght = lenght;

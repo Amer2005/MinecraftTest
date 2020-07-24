@@ -17,8 +17,18 @@ namespace Assets.Scripts.Services
             blockFactory = new BlockFactory();
         }
 
-        public bool CanYouPlaceBuilding(Point point, BuildingModel building, GameModel gameModel)
+        public bool CanYouPlaceBuilding(Point point, BuildingModel building, BlockModel[,,] blocks)
         {
+            if (point.X < 0 || point.Y < 0 || point.Z < 0)
+            {
+                return false;
+            }
+
+            if (point.X > blocks.GetLength(0) - 1 || point.Y > blocks.GetLength(1) - 1 || point.Z > blocks.GetLength(2) - 1)
+            {
+                return false;
+            }
+
             for (int x = 0; x < building.Width; x++)
             {
                 for (int y = 0; y < building.Height; y++)
@@ -31,7 +41,12 @@ namespace Assets.Scripts.Services
                             int blocksY = y + point.Y;
                             int blocksZ = z + point.Z;
 
-                            if (gameModel.Blocks[blocksX, blocksY, blocksZ] != null)
+                            if(blocks.GetLength(0) - 1 < blocksX || blocks.GetLength(1) - 1 < blocksY || blocks.GetLength(2) - 1 < blocksZ)
+                            {
+                                return false;
+                            }
+
+                            if (blocks[blocksX, blocksY, blocksZ] != null)
                             {
                                 return false;
                             }
@@ -43,9 +58,11 @@ namespace Assets.Scripts.Services
             return true;
         }
 
-        public void PlaceBuilding(Point point, BuildingModel building, GameModel gameModel)
+        public void PlaceBuilding(Point point, BuildingModel building, BlockModel[,,] blocks)
         {
-            if (!CanYouPlaceBuilding(point, building, gameModel))
+            point = point - building.StartPoint;
+
+            if (!CanYouPlaceBuilding(point, building, blocks))
             {
                 return;
             }
@@ -56,11 +73,14 @@ namespace Assets.Scripts.Services
                 {
                     for (int z = 0; z < building.Lenght; z++)
                     {
-                        int blocksX = x + point.X;
-                        int blocksY = y + point.Y;
-                        int blocksZ = z + point.Z;
+                        if (building.BuildingBlocks[x, y, z] != null)
+                        {
+                            int blocksX = x + point.X;
+                            int blocksY = y + point.Y;
+                            int blocksZ = z + point.Z;
 
-                        gameModel.Blocks[blocksX, blocksY, blocksZ] = blockFactory.CreateBlock(new Point(blocksX, blocksY, blocksZ), building.BuildingBlocks[x, y, z].BlockType);
+                            blocks[blocksX, blocksY, blocksZ] = blockFactory.CreateBlock(new Point(blocksX, blocksY, blocksZ), building.BuildingBlocks[x, y, z].BlockType);
+                        }
                     }
                 }
             }

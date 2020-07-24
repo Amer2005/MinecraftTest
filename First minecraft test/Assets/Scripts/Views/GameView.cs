@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.Models.Buildings;
+using System.Text;
 
 public class GameView : MonoBehaviour
 {
@@ -151,6 +152,11 @@ public class GameView : MonoBehaviour
     {
         GameModel gameModel = gameController.GetGameModel();
 
+        if(Input.GetKey(KeyCode.P))
+        {
+            PrintBuilding();
+        }
+
         if (Input.GetMouseButtonDown(1))
         {
             RaycastHit hit;
@@ -210,6 +216,17 @@ public class GameView : MonoBehaviour
                 blockPos.x = (float)Math.Floor(blockPos.x);
                 blockPos.y = (float)Math.Floor(blockPos.y);
                 blockPos.z = (float)Math.Floor(blockPos.z);
+
+                //buildingService.PlaceBuilding(new Point((int)blockPos.x, (int)blockPos.y, (int)blockPos.z), new TreeBuilding(), gameModel);
+                //
+                //UpdateChunk((int)blockPos.x / chunkSize + 1, (int)blockPos.z / chunkSize, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize - 1, (int)blockPos.z / chunkSize, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize + 1, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize - 1, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize + 1, (int)blockPos.z / chunkSize + 1, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize + 1, (int)blockPos.z / chunkSize - 1, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize - 1, (int)blockPos.z / chunkSize + 1, gameController.GetGameModel());
+                //UpdateChunk((int)blockPos.x / chunkSize - 1, (int)blockPos.z / chunkSize - 1, gameController.GetGameModel());
 
                 playerService.RightClick((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
@@ -608,5 +625,59 @@ public class GameView : MonoBehaviour
         mesh.vertices = vectors.ToArray();
         mesh.triangles = triangles.ToArray();
         mesh.uv = uvs.ToArray();
+    }
+
+    private void PrintBuilding()
+    {
+        GameModel gameModel = gameController.GetGameModel();
+
+        int minX = int.MaxValue;
+        int minY = int.MaxValue;
+        int minZ = int.MaxValue;
+
+        int maxX = -1;
+        int maxY = -1;
+        int maxZ = -1;
+
+        for (int x = 0; x < gameModel.Blocks.GetLength(0); x++)
+        {
+            for (int y = 1; y < gameModel.Blocks.GetLength(1); y++)
+            {
+                for (int z = 0; z < gameModel.Blocks.GetLength(2); z++)
+                {
+                    if (gameModel.Blocks[x, y, z] != null)
+                    {
+                        minX = Math.Min(minX, x);
+                        minY = Math.Min(minY, y);
+                        minZ = Math.Min(minZ, z);
+
+                        maxX = Math.Max(maxX, x);
+                        maxY = Math.Max(maxY, y);
+                        maxZ = Math.Max(maxZ, z);
+                    }
+                }
+            }
+        }
+
+        StringBuilder result = new StringBuilder();
+
+        result.Append($"{maxX - minX + 1} {maxY - minY + 1} {maxZ - minZ + 1}\n");
+
+        for (int x = 0; x < gameModel.Blocks.GetLength(0); x++)
+        {
+            for (int y = 1; y < gameModel.Blocks.GetLength(1); y++)
+            {
+                for (int z = 0; z < gameModel.Blocks.GetLength(2); z++)
+                {
+                    if (gameModel.Blocks[x, y, z] != null)
+                    {
+                        //BuildingBlocks[0, 0, 0] = new LogBlock(new Point(0, 0, 0));
+                        result.Append($"BuildingBlocks[{x - minX}, {y - minY}, {z - minZ}] = new {gameModel.Blocks[x,y,z].BlockType.ToString()}(new Point({x - minX}, {y - minY}, {z - minZ}));\n");
+                    }
+                }
+            }
+        }
+
+        Debug.Log(result);
     }
 }
