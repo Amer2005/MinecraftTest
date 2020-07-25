@@ -45,8 +45,16 @@ public class GameView : MonoBehaviour
     private GameObject[] invenvtoryImagesGameObjects;
     private GameObject[] inventoryItemCountsGameObjects;
     private Text[] inventoryItemCounts;
+
+    public GameObject CursorSlot;
+    private RawImage CursorSlotImage;
+    private Text CursorSlotCount;
     private void Awake()
     {
+        CursorSlotImage = CursorSlot.GetComponentInChildren<RawImage>();
+
+        CursorSlotCount = CursorSlot.GetComponentInChildren<Text>();
+
         MaterialsSides = new Vector2[Enum.GetNames(typeof(BlockType)).Length, 6];
 
         playerService = new PlayerService();
@@ -145,24 +153,17 @@ public class GameView : MonoBehaviour
         {
             GameModel gameModel = gameController.GetGameModel();
 
-            if (gameModel.Player.Inventory.ItemOnCursor.ItemCount <= 0)
+            inventoryService.ClickSlotInInventory(slotNumber / 9, slotNumber % 9, gameModel);
+
+            if (gameModel.Player.Inventory.ItemOnCursor.ItemCount > 0)
             {
-                Debug.Log(1);
-                gameModel.Player.Inventory.ItemOnCursor = gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9];
-                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = new InventorySlotModel();
-            }
-            else if (gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9].ItemCount <= 0)
-            {
-                Debug.Log(2);
-                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = gameModel.Player.Inventory.ItemOnCursor;
-                gameModel.Player.Inventory.ItemOnCursor = new InventorySlotModel();
+                CursorSlot.SetActive(true);
+                SetRawImage(CursorSlotImage, gameModel.Player.Inventory.ItemOnCursor.Item);
+                CursorSlotCount.text = gameModel.Player.Inventory.ItemOnCursor.ItemCount.ToString();
             }
             else
             {
-                Debug.Log(3);
-                var temp = gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9];
-                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = gameModel.Player.Inventory.ItemOnCursor;
-                gameModel.Player.Inventory.ItemOnCursor = temp;
+                CursorSlot.SetActive(false);
             }
 
             UpdateInventory();
@@ -200,7 +201,29 @@ public class GameView : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        Inputs();
+        if (!inventory.activeSelf)
+        {
+            Inputs();
+        }
+
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            if (!inventory.activeSelf)
+            {
+                UpdateInventory();
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+            inventory.SetActive(!inventory.activeSelf);
+        }
+
+        if (CursorSlot.activeSelf)
+        {
+            CursorSlot.transform.position = Input.mousePosition;
+        }
     }
 
     private void ChangeSelectedItem(int number, GameModel gameModel)
@@ -212,20 +235,6 @@ public class GameView : MonoBehaviour
     private void Inputs()
     {
         GameModel gameModel = gameController.GetGameModel();
-
-        if(Input.GetKeyDown(KeyCode.E))
-        {
-            if(!inventory.activeSelf)
-            {
-                UpdateInventory();
-                Cursor.lockState = CursorLockMode.None;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Locked;
-            }
-            inventory.SetActive(!inventory.activeSelf);
-        }
 
         if(Input.GetKeyDown(KeyCode.P))
         {

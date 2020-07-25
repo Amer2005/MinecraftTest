@@ -54,5 +54,25 @@ namespace Assets.Scripts.Services
                 gameModel.Player.Inventory.MainInventory[3, firstZero].ItemCount = 1;
             }
         }
+
+        public void ClickSlotInInventory(int slotX, int slotY, GameModel gameModel)
+        {
+            if (gameModel.Player.Inventory.ItemOnCursor.ItemCount <= 0)
+            {
+                gameModel.Player.Inventory.ItemOnCursor = gameModel.Player.Inventory.MainInventory[slotX, slotY];
+                gameModel.Player.Inventory.MainInventory[slotX, slotY] = new InventorySlotModel();
+            }
+            else if (gameModel.Player.Inventory.MainInventory[slotX, slotY].ItemCount <= 0)
+            {
+                gameModel.Player.Inventory.MainInventory[slotX, slotY] = gameModel.Player.Inventory.ItemOnCursor;
+                gameModel.Player.Inventory.ItemOnCursor = new InventorySlotModel();
+            }
+            else
+            {
+                var temp = gameModel.Player.Inventory.MainInventory[slotX, slotY];
+                gameModel.Player.Inventory.MainInventory[slotX, slotY] = gameModel.Player.Inventory.ItemOnCursor;
+                gameModel.Player.Inventory.ItemOnCursor = temp;
+            }
+        }
     }
 }
