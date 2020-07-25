@@ -21,15 +21,15 @@ namespace Assets.Scripts.Models
 
             if(Gamemode == Gamemodes.Creative)
             {
-                Inventory.MainInventory[4,0].Item = new BlockItemModel(BlockType.DefaultBlock);
-                Inventory.MainInventory[4,1].Item = new BlockItemModel(BlockType.DirtBlock);
-                Inventory.MainInventory[4,2].Item = new BlockItemModel(BlockType.GrassBlock);
-                Inventory.MainInventory[4,3].Item = new BlockItemModel(BlockType.LogBlock);
-                Inventory.MainInventory[4,4].Item = new BlockItemModel(BlockType.LeafBlock);
+                Inventory.MainInventory[3,0].Item = new BlockItemModel(BlockType.DefaultBlock);
+                Inventory.MainInventory[3,1].Item = new BlockItemModel(BlockType.DirtBlock);
+                Inventory.MainInventory[3,2].Item = new BlockItemModel(BlockType.GrassBlock);
+                Inventory.MainInventory[3,3].Item = new BlockItemModel(BlockType.LogBlock);
+                Inventory.MainInventory[3,4].Item = new BlockItemModel(BlockType.LeafBlock);
 
                 for (int i = 0; i < 5; i++)
                 {
-                    Inventory.MainInventory[4, i].ItemCount = 1;
+                    Inventory.MainInventory[3, i].ItemCount = 1;
                 }
             }
         }

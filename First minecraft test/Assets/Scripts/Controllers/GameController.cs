@@ -33,7 +33,7 @@ namespace Assets.Scripts.Controllers
             if(gameModel == null)
             {
                 gameModel = new GameModel();
-                gameModel.Player = new PlayerModel(Gamemodes.Survival);
+                gameModel.Player = new PlayerModel(Gamemodes.Creative);
                 gameModel.Blocks = BlockService.GenerateBlockMap(worldWidth, worldHeight, worldLenght);
             }
 
