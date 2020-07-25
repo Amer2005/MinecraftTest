@@ -46,7 +46,7 @@ MonoBehaviour:
   m_MinSize: {x: 479, y: 344}
   m_MaxSize: {x: 8004, y: 8044}
   vertical: 1
-  controlID: 100
+  controlID: 30
 --- !u!114 &3
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_MinSize: {x: 479, y: 344}
   m_MaxSize: {x: 8004, y: 8044}
   vertical: 0
-  controlID: 101
+  controlID: 31
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -243,7 +243,7 @@ MonoBehaviour:
   m_MinSize: {x: 277, y: 294}
   m_MaxSize: {x: 4002, y: 8044}
   vertical: 1
-  controlID: 102
+  controlID: 109
 --- !u!114 &11
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -413,9 +413,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 570.8106, y: 234.62555, z: 1.2575912}
+    m_Target: {x: 62.595917, y: 196.37418, z: 521.6952}
     speed: 2
-    m_Value: {x: 570.8106, y: 234.62555, z: 1.2575912}
+    m_Value: {x: 62.595917, y: 196.37418, z: 521.6952}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -444,13 +444,13 @@ MonoBehaviour:
       speed: 2
       m_Value: 0
   m_Rotation:
-    m_Target: {x: -0.0027520868, y: 0.99671614, z: -0.039204113, w: -0.071033545}
+    m_Target: {x: 0.25375104, y: 0.6497311, z: -0.2447786, w: 0.6734833}
     speed: 2
-    m_Value: {x: -0.002752041, y: 0.9966995, z: -0.039203458, w: -0.07103236}
+    m_Value: {x: 0.25374642, y: 0.64971924, z: -0.24477413, w: 0.67347103}
   m_Size:
-    m_Target: 121.92289
+    m_Target: 444.22708
     speed: 2
-    m_Value: 121.92289
+    m_Value: 444.22708
   m_Ortho:
     m_Target: 0
     speed: 2
@@ -541,20 +541,20 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Prefabs
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Prefabs
   m_LastFoldersGridSize: -1
   m_LastProjectPath: C:\Users\amerp\Desktop\Unity\MinecraftTest\First minecraft test
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
-    scrollPos: {x: 0, y: 20}
-    m_SelectedIDs: 4e2e0000
-    m_LastClickedID: 11854
-    m_ExpandedIDs: 00000000e42c00004e2e0000522f00009a2f000000ca9a3b
+    scrollPos: {x: 0, y: 36}
+    m_SelectedIDs: 502f0000
+    m_LastClickedID: 12112
+    m_ExpandedIDs: 00000000e22c00004c2e0000502f0000982f000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -582,7 +582,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000e42c00004e2e0000522f00009a2f0000
+    m_ExpandedIDs: 00000000e22c00004c2e0000502f0000982f0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -733,7 +733,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 76fbffff
+      m_ExpandedIDs: 76fbffff1630000064300000a4300000c0300000d4300000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 

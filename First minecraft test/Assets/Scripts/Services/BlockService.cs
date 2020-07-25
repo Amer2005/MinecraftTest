@@ -87,7 +87,7 @@ namespace Assets.Scripts.Services
                     {
                         BlockItemModel block = (BlockItemModel)slot.Item;
                         gameModel.Blocks[x, y, z] = BlockFactory.CreateBlock(new Point(x, y, z), block.BlockType);
-                        if (gameModel.Player.Gamemode == Gamemodes.Survival)
+                        if (gameModel.Player.Gamemode == GamemodeType.Survival)
                         {
                             gameModel.Player.Inventory.MainInventory[3, gameModel.Player.Inventory.SelectedBlock].ItemCount--;
                         }
@@ -112,7 +112,7 @@ namespace Assets.Scripts.Services
                 {
                     BlockType BlockType = gameModel.Blocks[x, y, z].BlockType;
 
-                    if (gameModel.Player.Gamemode == Gamemodes.Survival)
+                    if (gameModel.Player.Gamemode == GamemodeType.Survival)
                     {
                         inventoryService.AddItemToInventory(BlockType, gameModel);
                     }

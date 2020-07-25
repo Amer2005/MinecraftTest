@@ -139,32 +139,36 @@ public class GameView : MonoBehaviour
         image.uvRect = new Rect(material * 0.0625f, new Vector2(0.0625f, 0.0625f));
     }
 
-    private void UpdateHotBar()
+    public void SlotClicked(int slotNumber)
     {
-        GameModel gameModel = gameController.GetGameModel();
-        for (int i = 0; i < gameModel.Player.Inventory.MainInventory.GetLength(1); i++)
+        if (inventory.activeSelf)
         {
-            hotbarSlotSelected[i].SetActive(false);
+            GameModel gameModel = gameController.GetGameModel();
 
-            if (gameModel.Player.Inventory.MainInventory[3, i].ItemCount <= 0)
+            if (gameModel.Player.Inventory.ItemOnCursor.ItemCount <= 0)
             {
-                hotbarSlotsGameObjects[i].SetActive(false);
-                hotbarCountGameObjects[i].SetActive(false);
+                Debug.Log(1);
+                gameModel.Player.Inventory.ItemOnCursor = gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9];
+                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = new InventorySlotModel();
+            }
+            else if (gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9].ItemCount <= 0)
+            {
+                Debug.Log(2);
+                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = gameModel.Player.Inventory.ItemOnCursor;
+                gameModel.Player.Inventory.ItemOnCursor = new InventorySlotModel();
             }
             else
             {
-                hotbarSlotsGameObjects[i].SetActive(true);
-                hotbarCountGameObjects[i].SetActive(true);
-
-                SetRawImage(hotbarSlotsImages[i], gameModel.Player.Inventory.MainInventory[3, i].Item);
-
-                hotbarItemCounts[i].text = gameModel.Player.Inventory.MainInventory[3, i].ItemCount.ToString();
+                Debug.Log(3);
+                var temp = gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9];
+                gameModel.Player.Inventory.MainInventory[slotNumber / 9, slotNumber % 9] = gameModel.Player.Inventory.ItemOnCursor;
+                gameModel.Player.Inventory.ItemOnCursor = temp;
             }
-        }
 
-        hotbarSlotSelected[gameModel.Player.Inventory.SelectedBlock].SetActive(true);
+            UpdateInventory();
+        }
     }
-    
+
     private void UpdateInventory()
     {
         GameModel gameModel = gameController.GetGameModel();
@@ -190,7 +194,7 @@ public class GameView : MonoBehaviour
     private void Start()
     {
         RenderBlocks();
-        UpdateHotBar();
+        UpdateInventory();
     }
 
     // Update is called once per frame
@@ -202,7 +206,7 @@ public class GameView : MonoBehaviour
     private void ChangeSelectedItem(int number, GameModel gameModel)
     {
         gameModel.Player.Inventory.SelectedBlock = number;
-        UpdateHotBar();
+        UpdateInventory();
     }
 
     private void Inputs()
@@ -302,7 +306,7 @@ public class GameView : MonoBehaviour
                 playerService.RightClick((int)blockPos.x, (int)blockPos.y, (int)blockPos.z, gameModel);
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
-                UpdateHotBar();
+                UpdateInventory();
             }
         }
 
@@ -377,7 +381,7 @@ public class GameView : MonoBehaviour
 
                 UpdateChunk((int)blockPos.x / chunkSize, (int)blockPos.z / chunkSize, gameController.GetGameModel());
 
-                UpdateHotBar();
+                UpdateInventory();
             }
         }
 
@@ -429,7 +433,7 @@ public class GameView : MonoBehaviour
                 gameModel.Player.Inventory.SelectedBlock--;
             }
 
-            UpdateHotBar(); 
+            UpdateInventory(); 
         }
     }
 
@@ -686,11 +690,6 @@ public class GameView : MonoBehaviour
                     }
                 }
             }
-        }
-
-        for (int i = 0; i < uvs.Count; i++)
-        {
-            //uvs[i] = new Vector2(vectors[i].x * 0.0625f, vectors[i].z * 0.0625f);
         }
 
         mesh.vertices = vectors.ToArray();

@@ -16,16 +16,14 @@ namespace Assets.Scripts.Controllers
         private int worldHeight;
         private int worldLenght;
         private GameModel gameModel;
-        private BlockService BlockService;
-        private BlockFactory BlockFactory;
+        private BlockService blockService;
 
         public GameController(int worldWidth, int worldHeight, int worldLenght)
         {
-            BlockService = new BlockService();
+            blockService = new BlockService();
             this.worldWidth = worldWidth;
             this.worldHeight = worldHeight;
             this.worldLenght = worldLenght;
-            BlockFactory = new BlockFactory();
         }
 
         public GameModel GetGameModel()
@@ -33,8 +31,8 @@ namespace Assets.Scripts.Controllers
             if(gameModel == null)
             {
                 gameModel = new GameModel();
-                gameModel.Player = new PlayerModel(Gamemodes.Creative);
-                gameModel.Blocks = BlockService.GenerateBlockMap(worldWidth, worldHeight, worldLenght);
+                gameModel.Player = new PlayerModel(GamemodeType.Survival);
+                gameModel.Blocks = blockService.GenerateBlockMap(worldWidth, worldHeight, worldLenght);
             }
 
             return gameModel;

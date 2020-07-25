@@ -9,32 +9,7 @@ namespace Assets.Scripts.Models
 {
     public class InventoryModel
     {
-        public InventorySlotModel[,] MainInventory { get; set; }
-
         private int selectedBlock;
-
-        public int SelectedBlock 
-        { 
-            get
-            {
-                return selectedBlock;
-            }
-            set
-            {
-                if(value > 8)
-                {
-                    selectedBlock = 0;
-                }
-                else if (value < 0)
-                {
-                    selectedBlock = 8;
-                }
-                else
-                {
-                    selectedBlock = value;
-                }
-            }
-        }
 
         public InventoryModel()
         {
@@ -48,7 +23,36 @@ namespace Assets.Scripts.Models
                 }
             }
 
+            ItemOnCursor = new InventorySlotModel();
+
             SelectedBlock = 0;
+        }
+
+        public InventorySlotModel ItemOnCursor { get; set; }
+
+        public InventorySlotModel[,] MainInventory { get; set; }
+
+        public int SelectedBlock
+        {
+            get
+            {
+                return selectedBlock;
+            }
+            set
+            {
+                if (value > 8)
+                {
+                    selectedBlock = 0;
+                }
+                else if (value < 0)
+                {
+                    selectedBlock = 8;
+                }
+                else
+                {
+                    selectedBlock = value;
+                }
+            }
         }
     }
 }

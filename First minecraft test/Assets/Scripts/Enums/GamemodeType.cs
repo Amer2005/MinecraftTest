@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Assets.Scripts.Enums
 {
-    public enum Gamemodes
+    public enum GamemodeType
     {
         Survival = 0,
         Creative = 1

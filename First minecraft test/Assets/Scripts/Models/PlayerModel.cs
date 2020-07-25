@@ -12,14 +12,14 @@ namespace Assets.Scripts.Models
     {
         public InventoryModel Inventory { get; set; }
 
-        public Gamemodes Gamemode { get; set; }
+        public GamemodeType Gamemode { get; set; }
 
-        public PlayerModel(Gamemodes gamemode)
+        public PlayerModel(GamemodeType gamemode)
         {
             Inventory = new InventoryModel();
             Gamemode = gamemode;
 
-            if(Gamemode == Gamemodes.Creative)
+            if(Gamemode == GamemodeType.Creative)
             {
                 Inventory.MainInventory[3,0].Item = new BlockItemModel(BlockType.DefaultBlock);
                 Inventory.MainInventory[3,1].Item = new BlockItemModel(BlockType.DirtBlock);
