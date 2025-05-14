@@ -22,11 +22,7 @@ namespace Assets.Scripts.Views
         {
             var name = gameObject.transform.parent.name;
 
-            var names = name.Split('(');
-
-            names = names[1].Split(')');
-
-            gameView.SlotClicked(int.Parse(names[0]));
+            gameView.SlotClicked(int.Parse(name));
         }
     }
 }

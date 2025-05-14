@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Assets.Scripts.Models.Buildings;
 using System.Text;
+using System.Linq;
 
 public class GameView : MonoBehaviour
 {
@@ -61,7 +62,7 @@ public class GameView : MonoBehaviour
 
         buildingService = new BuildingService();
 
-        invenvtoryImagesGameObjects = GameObject.FindGameObjectsWithTag("MainInventorySlots");
+        invenvtoryImagesGameObjects = GameObject.FindGameObjectsWithTag("MainInventorySlots").OrderBy(x => int.Parse(x.transform.parent.name)).ToArray();
 
         inventoryImages = new RawImage[invenvtoryImagesGameObjects.Length];
 
@@ -70,7 +71,7 @@ public class GameView : MonoBehaviour
             inventoryImages[i] = invenvtoryImagesGameObjects[i].GetComponent<RawImage>();
         }
 
-        inventoryItemCountsGameObjects = GameObject.FindGameObjectsWithTag("MainInventoryCount");
+        inventoryItemCountsGameObjects = GameObject.FindGameObjectsWithTag("MainInventoryCount").OrderBy(x => int.Parse(x.transform.parent.name)).ToArray();
 
         inventoryItemCounts = new Text[inventoryItemCountsGameObjects.Length];
 
